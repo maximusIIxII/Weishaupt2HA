@@ -1,0 +1,97 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Weishaupt Wärmepumpe Verbindung",
+        "description": "Geben Sie die Verbindungsdaten Ihres WCM-COM Moduls ein.",
+        "data": {
+          "host": "Host (IP-Adresse)",
+          "port": "Port",
+          "slave_id": "Modbus Slave-ID"
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "Verbindung zum WCM-COM Modul nicht möglich. IP-Adresse und Port prüfen.",
+      "unknown": "Unbekannter Fehler aufgetreten."
+    },
+    "abort": {
+      "already_configured": "Dieses Gerät ist bereits konfiguriert."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Weishaupt Wärmepumpe Optionen",
+        "data": {
+          "scan_interval": "Abfrageintervall (Sekunden)"
+        }
+      }
+    }
+  },
+  "entity": {
+    "climate": {
+      "heating_circuit": { "name": "Heizkreis" }
+    },
+    "water_heater": {
+      "hot_water": { "name": "Warmwasser" }
+    },
+    "sensor": {
+      "outdoor_temp": { "name": "Außentemperatur" },
+      "air_intake_temp": { "name": "Luftansaugtemperatur" },
+      "hp_flow_temp": { "name": "Vorlauftemperatur" },
+      "hp_return_temp": { "name": "Rücklauftemperatur" },
+      "hp_evaporator_temp": { "name": "Verdampfungstemperatur" },
+      "hp_compressor_intake_temp": { "name": "Verdichtersauggastemperatur" },
+      "hp_switch_temp": { "name": "Weichentemperatur" },
+      "hp_precise_flow_temp": { "name": "Vorlauftemperatur präzise" },
+      "hp_buffer_temp": { "name": "Puffertemperatur" },
+      "ww_current_temp": { "name": "Warmwassertemperatur" },
+      "ww_target_temp": { "name": "Warmwasser Solltemperatur" },
+      "hz_room_temp": { "name": "Raumtemperatur" },
+      "hz_room_target_temp": { "name": "Raum-Solltemperatur" },
+      "hz_flow_temp": { "name": "Heizkreis Vorlauftemperatur" },
+      "hz_flow_target_temp": { "name": "Heizkreis Vorlauf-Solltemperatur" },
+      "hp_power_request": { "name": "Leistungsanforderung" },
+      "hz_room_humidity": { "name": "Raumfeuchte" },
+      "w2_eheater1_hours": { "name": "E-Heizung 1 Betriebsstunden" },
+      "w2_eheater2_hours": { "name": "E-Heizung 2 Betriebsstunden" },
+      "w2_eheater1_cycles": { "name": "E-Heizung 1 Schaltspiele" },
+      "w2_eheater2_cycles": { "name": "E-Heizung 2 Schaltspiele" },
+      "st_total_energy_today": { "name": "Gesamtenergie heute" },
+      "st_total_energy_year": { "name": "Gesamtenergie Jahr" },
+      "st_heating_energy_today": { "name": "Heizenergie heute" },
+      "st_heating_energy_year": { "name": "Heizenergie Jahr" },
+      "st_hot_water_energy_today": { "name": "Warmwasserenergie heute" },
+      "st_hot_water_energy_year": { "name": "Warmwasserenergie Jahr" },
+      "st_electric_energy_today": { "name": "Elektrische Energie heute" },
+      "st_electric_energy_year": { "name": "Elektrische Energie Jahr" },
+      "st_cooling_energy_today": { "name": "Kühlenergie heute" },
+      "st_cooling_energy_year": { "name": "Kühlenergie Jahr" }
+    },
+    "binary_sensor": {
+      "hp_compressor_active": { "name": "Kompressor" },
+      "hp_defrost_active": { "name": "Abtauung" },
+      "hp_error": { "name": "Störung" },
+      "hp_warning": { "name": "Warnung" },
+      "w2_eheater1_active": { "name": "E-Heizung 1" },
+      "w2_eheater2_active": { "name": "E-Heizung 2" }
+    },
+    "number": {
+      "hz_comfort_temp": { "name": "Komforttemperatur" },
+      "hz_normal_temp": { "name": "Normaltemperatur" },
+      "hz_reduced_temp": { "name": "Absenktemperatur" },
+      "hz_heating_curve": { "name": "Heizkennlinie" },
+      "hz_summer_winter_switch": { "name": "Sommer/Winter Umschaltung" },
+      "ww_normal_temp": { "name": "Warmwasser Normaltemperatur" },
+      "ww_reduced_temp": { "name": "Warmwasser Absenktemperatur" },
+      "w2_limit_temp": { "name": "2. WEZ Grenztemperatur" },
+      "w2_bivalence_temp": { "name": "Bivalenztemperatur" }
+    },
+    "select": {
+      "sys_operation_mode": { "name": "Systembetriebsart" },
+      "hz_operation_mode": { "name": "Heizkreis Betriebsart" },
+      "hz_party_pause": { "name": "Party / Pause" }
+    }
+  }
+}

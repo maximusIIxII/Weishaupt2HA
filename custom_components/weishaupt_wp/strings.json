@@ -1,0 +1,97 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Weishaupt Heat Pump Connection",
+        "description": "Enter the connection details for your WCM-COM module.",
+        "data": {
+          "host": "Host (IP Address)",
+          "port": "Port",
+          "slave_id": "Modbus Slave ID"
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "Cannot connect to WCM-COM module. Check IP address and port.",
+      "unknown": "Unexpected error occurred."
+    },
+    "abort": {
+      "already_configured": "This device is already configured."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Weishaupt Heat Pump Options",
+        "data": {
+          "scan_interval": "Polling interval (seconds)"
+        }
+      }
+    }
+  },
+  "entity": {
+    "climate": {
+      "heating_circuit": { "name": "Heating Circuit" }
+    },
+    "water_heater": {
+      "hot_water": { "name": "Hot Water" }
+    },
+    "sensor": {
+      "outdoor_temp": { "name": "Outdoor Temperature" },
+      "air_intake_temp": { "name": "Air Intake Temperature" },
+      "hp_flow_temp": { "name": "Flow Temperature" },
+      "hp_return_temp": { "name": "Return Temperature" },
+      "hp_evaporator_temp": { "name": "Evaporator Temperature" },
+      "hp_compressor_intake_temp": { "name": "Compressor Intake Temperature" },
+      "hp_switch_temp": { "name": "Switch Temperature" },
+      "hp_precise_flow_temp": { "name": "Precise Flow Temperature" },
+      "hp_buffer_temp": { "name": "Buffer Temperature" },
+      "ww_current_temp": { "name": "Hot Water Temperature" },
+      "ww_target_temp": { "name": "Hot Water Target Temperature" },
+      "hz_room_temp": { "name": "Room Temperature" },
+      "hz_room_target_temp": { "name": "Room Target Temperature" },
+      "hz_flow_temp": { "name": "Heating Flow Temperature" },
+      "hz_flow_target_temp": { "name": "Heating Flow Target Temperature" },
+      "hp_power_request": { "name": "Power Request" },
+      "hz_room_humidity": { "name": "Room Humidity" },
+      "w2_eheater1_hours": { "name": "E-Heater 1 Operating Hours" },
+      "w2_eheater2_hours": { "name": "E-Heater 2 Operating Hours" },
+      "w2_eheater1_cycles": { "name": "E-Heater 1 Cycles" },
+      "w2_eheater2_cycles": { "name": "E-Heater 2 Cycles" },
+      "st_total_energy_today": { "name": "Total Energy Today" },
+      "st_total_energy_year": { "name": "Total Energy Year" },
+      "st_heating_energy_today": { "name": "Heating Energy Today" },
+      "st_heating_energy_year": { "name": "Heating Energy Year" },
+      "st_hot_water_energy_today": { "name": "Hot Water Energy Today" },
+      "st_hot_water_energy_year": { "name": "Hot Water Energy Year" },
+      "st_electric_energy_today": { "name": "Electric Energy Today" },
+      "st_electric_energy_year": { "name": "Electric Energy Year" },
+      "st_cooling_energy_today": { "name": "Cooling Energy Today" },
+      "st_cooling_energy_year": { "name": "Cooling Energy Year" }
+    },
+    "binary_sensor": {
+      "hp_compressor_active": { "name": "Compressor" },
+      "hp_defrost_active": { "name": "Defrost" },
+      "hp_error": { "name": "Error" },
+      "hp_warning": { "name": "Warning" },
+      "w2_eheater1_active": { "name": "E-Heater 1" },
+      "w2_eheater2_active": { "name": "E-Heater 2" }
+    },
+    "number": {
+      "hz_comfort_temp": { "name": "Comfort Temperature" },
+      "hz_normal_temp": { "name": "Normal Temperature" },
+      "hz_reduced_temp": { "name": "Reduced Temperature" },
+      "hz_heating_curve": { "name": "Heating Curve" },
+      "hz_summer_winter_switch": { "name": "Summer/Winter Switch" },
+      "ww_normal_temp": { "name": "Hot Water Normal Temp" },
+      "ww_reduced_temp": { "name": "Hot Water Reduced Temp" },
+      "w2_limit_temp": { "name": "2nd Heater Limit Temp" },
+      "w2_bivalence_temp": { "name": "Bivalence Temperature" }
+    },
+    "select": {
+      "sys_operation_mode": { "name": "System Operation Mode" },
+      "hz_operation_mode": { "name": "Heating Mode" },
+      "hz_party_pause": { "name": "Party / Pause" }
+    }
+  }
+}

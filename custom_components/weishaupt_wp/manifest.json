@@ -1,0 +1,12 @@
+{
+  "domain": "weishaupt_wp",
+  "name": "Weishaupt Heat Pump",
+  "codeowners": [],
+  "config_flow": true,
+  "dependencies": [],
+  "documentation": "https://github.com/timvanwasen/ha-weishaupt-wp",
+  "iot_class": "local_polling",
+  "requirements": ["weishaupt-modbus==0.1.0"],
+  "version": "0.1.0",
+  "integration_type": "device"
+}
