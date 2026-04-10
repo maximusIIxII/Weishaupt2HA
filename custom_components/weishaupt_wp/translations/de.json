@@ -92,6 +92,13 @@
       "sys_operation_mode": { "name": "Systembetriebsart" },
       "hz_operation_mode": { "name": "Heizkreis Betriebsart" },
       "hz_party_pause": { "name": "Party / Pause" }
+    },
+    "switch": {
+      "hp_quiet_mode": { "name": "Flüstermodus" },
+      "ww_push": { "name": "Warmwasser-Schnellladung" }
+    },
+    "button": {
+      "ww_boost": { "name": "Warmwasser-Schnellladung" }
     }
   }
 }

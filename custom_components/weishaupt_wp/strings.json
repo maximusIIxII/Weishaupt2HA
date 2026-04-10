@@ -92,6 +92,13 @@
       "sys_operation_mode": { "name": "System Operation Mode" },
       "hz_operation_mode": { "name": "Heating Mode" },
       "hz_party_pause": { "name": "Party / Pause" }
+    },
+    "switch": {
+      "hp_quiet_mode": { "name": "Quiet Mode" },
+      "ww_push": { "name": "Hot Water Boost" }
+    },
+    "button": {
+      "ww_boost": { "name": "Hot Water Boost" }
     }
   }
 }

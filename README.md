@@ -10,6 +10,8 @@ Custom Home Assistant integration for **Weishaupt heat pumps** via the **WCM-COM
 - **Binary sensors** — Compressor, defrost, error/warning status
 - **Number entities** — Adjust setpoints, heating curve, summer/winter switch
 - **Select entities** — System operation mode, heating mode, party/pause
+- **Switch entities** — Quiet mode, hot water boost
+- **Button entities** — One-time hot water boost trigger
 - **Diagnostics** — Export debug data from the integration settings
 
 ## Requirements
@@ -55,6 +57,8 @@ After setup, you can adjust:
 | Binary sensor | 6 | Compressor, defrost, errors, e-heaters |
 | Number | 9 | Comfort/normal/reduced temp, heating curve |
 | Select | 3 | System mode, heating mode, party/pause |
+| Switch | 2 | Quiet mode, hot water boost |
+| Button | 1 | Hot water one-time boost |
 
 ## Architecture
 

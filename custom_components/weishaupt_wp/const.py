@@ -17,10 +17,12 @@ MIN_SCAN_INTERVAL = 10
 MAX_SCAN_INTERVAL = 300
 
 PLATFORMS = [
+    "binary_sensor",
+    "button",
     "climate",
-    "sensor",
     "number",
     "select",
-    "binary_sensor",
+    "sensor",
+    "switch",
     "water_heater",
 ]
