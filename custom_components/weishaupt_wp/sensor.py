@@ -23,6 +23,7 @@ from homeassistant.const import (
     UnitOfVolumeFlowRate,
 )
 from homeassistant.core import HomeAssistant
+from homeassistant.helpers.entity import EntityCategory
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
 from weishaupt_modbus import EbusdData, WCMData, WeishauptData
@@ -461,6 +462,7 @@ class EbusdSensorDescription(SensorEntityDescription):
     """Describes an ebusd sensor entity."""
 
     value_fn: Callable[[EbusdData], float | int | str | None]
+    attributes_fn: Callable[[EbusdData], dict[str, object] | None] | None = None
 
 
 EBUSD_TEMPERATURE_SENSORS: tuple[EbusdSensorDescription, ...] = (
@@ -566,6 +568,15 @@ EBUSD_OPERATIONAL_SENSORS: tuple[EbusdSensorDescription, ...] = (
         icon="mdi:radiator",
         value_fn=lambda d: d.sensors.hc_status,
     ),
+    EbusdSensorDescription(
+        key="ebusd_diagnostics",
+        translation_key="ebusd_diagnostics",
+        icon="mdi:information-outline",
+        entity_category=EntityCategory.DIAGNOSTIC,
+        entity_registry_enabled_default=False,
+        value_fn=lambda d: len([v for v in d.raw_values.values() if v is not None]),
+        attributes_fn=lambda d: dict(d.raw_values) if d.raw_values else None,
+    ),
 )
 
 ALL_EBUSD_SENSORS = EBUSD_TEMPERATURE_SENSORS + EBUSD_OPERATIONAL_SENSORS
@@ -670,3 +681,10 @@ class EbusdSensor(EbusdEntity, SensorEntity):
     def native_value(self) -> float | int | str | None:
         """Return the sensor value."""
         return self.entity_description.value_fn(self.coordinator.data)
+
+    @property
+    def extra_state_attributes(self) -> dict[str, object] | None:
+        """Return extra state attributes, if the description defines them."""
+        if self.entity_description.attributes_fn is None:
+            return None
+        return self.entity_description.attributes_fn(self.coordinator.data)

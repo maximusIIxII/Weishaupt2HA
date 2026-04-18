@@ -127,7 +127,8 @@
           "winter": "Winter"
         }
       },
-      "ebusd_hc_status": { "name": "Heating Circuit Status" }
+      "ebusd_hc_status": { "name": "Heating Circuit Status" },
+      "ebusd_diagnostics": { "name": "ebusd Diagnostics" }
     },
     "binary_sensor": {
       "hp_compressor_active": { "name": "Compressor" },

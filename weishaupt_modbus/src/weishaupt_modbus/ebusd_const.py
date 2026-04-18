@@ -39,7 +39,7 @@ class EbusdField:
 
 
 # ──────────────────────────────────────────────────────────
-#  sc.Act — System Controller broadcast (27 fields)
+#  sc.Act — System Controller broadcast (26 fields)
 #
 #  Live example response:
 #  1;BrennerInBetrieb;1;1;1;1;1;1;1;0;0;Summer;0;1;0;0;0;DHW;42;69.0;26.0;44.0;0.0;21;21.070;8
