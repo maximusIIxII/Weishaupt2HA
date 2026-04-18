@@ -338,10 +338,11 @@ class _FakeWriter:
 
 def _make_client_with_responses(*responses: str) -> tuple[WeishauptEbusdClient, _FakeWriter]:
     """Build a client wired to a StreamReader pre-loaded with the given
-    newline-terminated responses, in the order they will be read."""
+    responses, in the order they will be read. Each response is terminated
+    with a blank line — that's how ebusd signals end-of-response."""
     reader = asyncio.StreamReader()
     for resp in responses:
-        reader.feed_data(resp.encode() + b"\n")
+        reader.feed_data(resp.encode() + b"\n\n")
     reader.feed_eof()
 
     writer = _FakeWriter()
@@ -420,3 +421,39 @@ async def test_async_read_all_both_broadcasts_error():
     assert data.sensors.flow_temp is None
     assert data.sensors.hc_status is None
     assert data.raw_values == {}
+
+
+async def test_info_banner_does_not_leak_into_subsequent_reads():
+    """Regression for the 'max symbol rate: 64' bug.
+
+    `ebusctl info` returns 10+ lines. The old client only read one, leaving
+    the rest in the socket buffer — the next `read` command would then pick
+    up an info line (e.g. "max symbol rate: 64") as its result, which got
+    parsed as hc1.Set and surfaced as a garbage hc_status in HA. The fix:
+    _send_command reads until the blank-line terminator, so the info tail
+    cannot leak.
+    """
+    info_banner = (
+        "version: ebusd 26.1\n"
+        "device: 192.168.1.241:9999, TCP\n"
+        "signal: acquired\n"
+        "symbol rate: 33\n"
+        "max symbol rate: 64\n"
+        "min arbitration micros: 8"
+    )
+    client, _ = _make_client_with_responses(
+        info_banner,     # response to `info`
+        SC_ACT_LIVE,     # response to `read -c sc Act`
+        HC1_SET_LIVE,    # response to `read -c hc1 Set`
+    )
+
+    # Simulate the real startup sequence: identify_device calls info first.
+    info = await client.async_get_info()
+    assert info["version"] == "ebusd 26.1"
+    assert info["max symbol rate"] == "64"
+
+    # Then the regular read cycle — must NOT pick up any info-line as data.
+    data = await client.async_read_all()
+    assert data.sensors.flow_temp == 69.0
+    assert data.sensors.hc_status == "hotwater"  # not "max symbol rate: 64"
+    assert data.sensors.outdoor_temp == 21

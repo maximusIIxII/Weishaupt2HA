@@ -84,7 +84,14 @@ class WeishauptEbusdClient:
             _LOGGER.debug("Disconnected from ebusd")
 
     async def _send_command(self, command: str) -> str:
-        """Send a command to ebusd and return the response line."""
+        """Send a command to ebusd and return the full response.
+
+        ebusd terminates each response with a blank line. We read until we
+        see it, otherwise multi-line replies (e.g. `info`) leave the tail
+        in the socket buffer and the next command picks it up as its
+        result — that has happened: `info` output "max symbol rate: 64"
+        was consumed as the hc1.Set response.
+        """
         if not self.connected:
             await self.connect()
         assert self._reader is not None
@@ -94,11 +101,17 @@ class WeishauptEbusdClient:
             self._writer.write(f"{command}\n".encode())
             await self._writer.drain()
 
-            line = await asyncio.wait_for(
-                self._reader.readline(),
-                timeout=self._timeout,
-            )
-            return line.decode().strip()
+            lines: list[str] = []
+            while True:
+                raw = await asyncio.wait_for(
+                    self._reader.readline(),
+                    timeout=self._timeout,
+                )
+                line = raw.decode().rstrip("\r\n")
+                if not line:
+                    break
+                lines.append(line)
+            return "\n".join(lines)
         except (OSError, asyncio.TimeoutError) as err:
             self._writer = None
             self._reader = None
@@ -112,10 +125,13 @@ class WeishauptEbusdClient:
         async with self._lock:
             response = await self._send_command(cmd)
 
-        if response.startswith("ERR:"):
+        if not response or response.startswith("ERR:"):
             _LOGGER.debug("ebusd %s.%s: %s", circuit, message, response)
             return None
-        return response
+        # `read` always returns a single value line, but _send_command may
+        # return a multi-line string if ebusd ever appends extras — keep
+        # only the first line to stay robust.
+        return response.split("\n", 1)[0]
 
     def _parse_field(self, raw: str, field: EbusdField) -> float | int | str | None:
         """Extract one field from a semicolon-separated ebusd response."""
