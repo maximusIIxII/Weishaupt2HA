@@ -57,6 +57,15 @@ ebusd needs the [J0EK3R Weishaupt config CSVs](https://github.com/J0EK3R/ebusd-c
 
 **Important:** run ebusd **without** the `--scanconfig` flag. The J0EK3R layout is flat (no vendor subfolder); with `--scanconfig`, ebusd fails the scan match, skips the `!include` directives, and `find -w` returns nothing — which silently breaks every v0.6 write target. The example compose file in this repo already has the flag removed.
 
+## Examples
+
+- [`examples/ebusd/`](examples/ebusd/) — Docker Compose setup for ebusd on QNAP (or any Docker host)
+- [`examples/lovelace/`](examples/lovelace/) — picture-elements dashboard for the WTC 25-A gas boiler with an animated SVG schema
+
+## Changelog
+
+See [`CHANGELOG.md`](CHANGELOG.md) for the per-version history.
+
 ## Credits
 
 - [J0EK3R/ebusd-configuration-weishaupt](https://github.com/J0EK3R/ebusd-configuration-weishaupt) — the ebusd CSVs that describe the WTC message layout
