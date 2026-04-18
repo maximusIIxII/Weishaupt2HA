@@ -7,6 +7,8 @@ wrong sensor values in production.
 
 from __future__ import annotations
 
+import asyncio
+
 from weishaupt_modbus.ebusd_client import WeishauptEbusdClient
 from weishaupt_modbus.ebusd_const import (
     ALL_FIELDS,
@@ -303,4 +305,118 @@ def test_ebusd_data_composes_nested_dataclasses():
     data = EbusdData()
     assert isinstance(data.sensors, EbusdSensorData)
     assert isinstance(data.device_info, EbusdDeviceInfo)
+    assert data.raw_values == {}
+
+
+# ──────────────────────────────────────────────────────────
+# async_read_all — end-to-end with a fake ebusd connection
+# ──────────────────────────────────────────────────────────
+
+
+class _FakeWriter:
+    """Minimal asyncio.StreamWriter stand-in for testing the client."""
+
+    def __init__(self) -> None:
+        self.written: list[bytes] = []
+        self._closing = False
+
+    def write(self, data: bytes) -> None:
+        self.written.append(data)
+
+    async def drain(self) -> None:
+        return None
+
+    def is_closing(self) -> bool:
+        return self._closing
+
+    def close(self) -> None:
+        self._closing = True
+
+    async def wait_closed(self) -> None:
+        return None
+
+
+def _make_client_with_responses(*responses: str) -> tuple[WeishauptEbusdClient, _FakeWriter]:
+    """Build a client wired to a StreamReader pre-loaded with the given
+    newline-terminated responses, in the order they will be read."""
+    reader = asyncio.StreamReader()
+    for resp in responses:
+        reader.feed_data(resp.encode() + b"\n")
+    reader.feed_eof()
+
+    writer = _FakeWriter()
+    client = WeishauptEbusdClient(host="fake", port=8888)
+    client._reader = reader
+    client._writer = writer  # type: ignore[assignment]
+    return client, writer
+
+
+async def test_async_read_all_happy_path_extracts_all_fields():
+    """With live broadcasts queued in BROADCASTS order, every mapped field
+    must land in EbusdData with the expected typed value."""
+    client, writer = _make_client_with_responses(SC_ACT_LIVE, HC1_SET_LIVE)
+
+    data = await client.async_read_all()
+
+    # sc.Act-derived fields
+    assert data.sensors.operating_phase == "BrennerInBetrieb"
+    assert data.sensors.flame_active == 1
+    assert data.sensors.gas_valve1_active == 1
+    assert data.sensors.gas_valve2_active == 1
+    assert data.sensors.pump_active == 1
+    assert data.sensors.error_active == 0
+    assert data.sensors.season == "Summer"
+    assert data.sensors.operating_mode == "DHW"
+    assert data.sensors.load_position == 42
+    assert data.sensors.flow_temp == 69.0
+    assert data.sensors.exhaust_temp == 26.0
+    assert data.sensors.hot_water_temp == 44.0
+    assert data.sensors.outdoor_temp == 21
+    assert data.sensors.trend_temp == 21.07
+    assert data.sensors.flow_set_temp == 8
+
+    # hc1.Set-derived fields
+    assert data.sensors.hc_status == "hotwater"
+    assert data.sensors.dhw_set_temp == 50.0
+
+    # Commands issued in the expected order — one per broadcast.
+    assert writer.written == [b"read -c sc Act\n", b"read -c hc1 Set\n"]
+
+    # raw_values exposes only non-None entries for dashboards/diagnostics.
+    assert "flow_temp" in data.raw_values
+    assert "hc_set_pressure" not in data.raw_values  # live response has '-'
+
+
+async def test_async_read_all_error_response_yields_none_fields():
+    """ebusd returns 'ERR: ...' when a broadcast is not cached. Every field
+    that belongs to that broadcast must come back as None — no exception."""
+    client, _ = _make_client_with_responses(
+        "ERR: message not defined",  # sc.Act unavailable
+        HC1_SET_LIVE,
+    )
+
+    data = await client.async_read_all()
+
+    # All sc.Act-sourced attributes are None.
+    assert data.sensors.flow_temp is None
+    assert data.sensors.outdoor_temp is None
+    assert data.sensors.season is None
+    assert data.sensors.gas_valve1_active is None
+
+    # hc1.Set-sourced attributes are still populated.
+    assert data.sensors.hc_status == "hotwater"
+    assert data.sensors.dhw_set_temp == 50.0
+
+
+async def test_async_read_all_both_broadcasts_error():
+    """Full outage: both broadcasts return ERR — no crash, all None."""
+    client, _ = _make_client_with_responses(
+        "ERR: no signal",
+        "ERR: no signal",
+    )
+
+    data = await client.async_read_all()
+
+    assert data.sensors.flow_temp is None
+    assert data.sensors.hc_status is None
     assert data.raw_values == {}
