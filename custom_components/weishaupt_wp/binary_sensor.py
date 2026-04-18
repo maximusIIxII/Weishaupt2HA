@@ -89,7 +89,27 @@ class EbusdBinarySensorDescription(BinarySensorEntityDescription):
     is_on_fn: Callable[[EbusdData], bool | None]
 
 
+# Prefixes the WTC uses in the operating_phase enum to flag a fault or warning
+# (see J0EK3R f6..sc.csv Operatingphase enum: codes 11–16, 21–24).
+# Values like "S:Kesseltemperatur > 105°C", "W:Abgastemperatur > 115°C",
+# "W/S:Temperaturdifferenz zu groß" — all match one of these prefixes.
+_FAULT_PHASE_PREFIXES: tuple[str, ...] = ("S:", "W:", "W/S:")
+
+
+def _is_active_fault(phase: str | None) -> bool | None:
+    """True when the live operating_phase signals an active fault/warning."""
+    if phase is None:
+        return None
+    return phase.startswith(_FAULT_PHASE_PREFIXES)
+
+
 EBUSD_BINARY_SENSORS: tuple[EbusdBinarySensorDescription, ...] = (
+    EbusdBinarySensorDescription(
+        key="ebusd_active_fault",
+        translation_key="ebusd_active_fault",
+        device_class=BinarySensorDeviceClass.PROBLEM,
+        is_on_fn=lambda d: _is_active_fault(d.sensors.operating_phase),
+    ),
     EbusdBinarySensorDescription(
         key="ebusd_flame_active",
         translation_key="ebusd_flame_active",

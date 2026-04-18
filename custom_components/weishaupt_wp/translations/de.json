@@ -114,6 +114,7 @@
       "ebusd_flame_active": { "name": "Flamme" },
       "ebusd_pump_active": { "name": "Pumpe" },
       "ebusd_error": { "name": "Störung" },
+      "ebusd_active_fault": { "name": "Aktive Störung" },
       "ebusd_gas_valve1_active": { "name": "Gasventil 1" },
       "ebusd_gas_valve2_active": { "name": "Gasventil 2" }
     },
