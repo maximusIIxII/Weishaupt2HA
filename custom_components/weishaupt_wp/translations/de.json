@@ -2,17 +2,43 @@
   "config": {
     "step": {
       "user": {
-        "title": "Weishaupt Wärmepumpe Verbindung",
-        "description": "Geben Sie die Verbindungsdaten Ihres WCM-COM Moduls ein.",
+        "title": "Weishaupt Verbindungstyp",
+        "description": "Wählen Sie die Verbindungsart Ihrer Weishaupt Heizung.",
+        "data": {
+          "connection_type": "Verbindungstyp"
+        }
+      },
+      "modbus": {
+        "title": "Modbus TCP Verbindung",
+        "description": "Geben Sie die Verbindungsdaten Ihres WCM-COM Moduls ein (Modbus TCP).",
         "data": {
           "host": "Host (IP-Adresse)",
           "port": "Port",
           "slave_id": "Modbus Slave-ID"
         }
+      },
+      "wcm": {
+        "title": "WCM-COM HTTP Verbindung",
+        "description": "Geben Sie die Verbindungsdaten Ihres WCM-COM Moduls ein.",
+        "data": {
+          "host": "Host (IP-Adresse)",
+          "port": "Port",
+          "username": "Benutzername",
+          "password": "Passwort"
+        }
+      },
+      "ebusd": {
+        "title": "ebusd Verbindung",
+        "description": "Geben Sie die Verbindungsdaten Ihres ebusd Daemons ein (eBUS Adapter).",
+        "data": {
+          "host": "ebusd Host (IP-Adresse)",
+          "port": "ebusd Port",
+          "ebusd_circuit": "Circuit (optional)"
+        }
       }
     },
     "error": {
-      "cannot_connect": "Verbindung zum WCM-COM Modul nicht möglich. IP-Adresse und Port prüfen.",
+      "cannot_connect": "Verbindung zum WCM-COM Modul nicht möglich. IP-Adresse, Port und Zugangsdaten prüfen.",
       "unknown": "Unbekannter Fehler aufgetreten."
     },
     "abort": {
@@ -22,7 +48,7 @@
   "options": {
     "step": {
       "init": {
-        "title": "Weishaupt Wärmepumpe Optionen",
+        "title": "Weishaupt Optionen",
         "data": {
           "scan_interval": "Abfrageintervall (Sekunden)"
         }
@@ -67,7 +93,35 @@
       "st_electric_energy_today": { "name": "Elektrische Energie heute" },
       "st_electric_energy_year": { "name": "Elektrische Energie Jahr" },
       "st_cooling_energy_today": { "name": "Kühlenergie heute" },
-      "st_cooling_energy_year": { "name": "Kühlenergie Jahr" }
+      "st_cooling_energy_year": { "name": "Kühlenergie Jahr" },
+      "wcm_outdoor_temp": { "name": "Außentemperatur" },
+      "wcm_damped_outdoor_temp": { "name": "Gedämpfte Außentemperatur" },
+      "wcm_flow_temp": { "name": "Vorlauftemperatur" },
+      "wcm_return_temp": { "name": "Rücklauftemperatur" },
+      "wcm_hot_water_temp": { "name": "Warmwassertemperatur" },
+      "wcm_exhaust_temp": { "name": "Abgastemperatur" },
+      "wcm_buffer_top_temp": { "name": "Puffer oben" },
+      "wcm_buffer_bottom_temp": { "name": "Puffer unten" },
+      "wcm_heat_request": { "name": "Wärmeanforderung" },
+      "wcm_load_position": { "name": "Brennermodulation" },
+      "wcm_load_setting_kw": { "name": "Aktuelle Leistung" },
+      "wcm_flow_rate": { "name": "Durchfluss" },
+      "wcm_operating_phase": { "name": "Betriebsphase" },
+      "wcm_error_code": { "name": "Fehlercode" },
+      "wcm_burner_hours": { "name": "Brenner Betriebsstunden" },
+      "wcm_burner_cycles": { "name": "Brenner Schaltspiele" },
+      "ebusd_outdoor_temp": { "name": "Außentemperatur" },
+      "ebusd_flow_temp": { "name": "Vorlauftemperatur" },
+      "ebusd_flow_set_temp": { "name": "Vorlauf Soll" },
+      "ebusd_hot_water_temp": { "name": "Warmwassertemperatur" },
+      "ebusd_dhw_set_temp": { "name": "Warmwasser Soll" },
+      "ebusd_exhaust_temp": { "name": "Abgastemperatur" },
+      "ebusd_trend_temp": { "name": "Temperaturtrend" },
+      "ebusd_load_position": { "name": "Brennermodulation" },
+      "ebusd_operating_phase": { "name": "Betriebsphase" },
+      "ebusd_operating_mode": { "name": "Betriebsmodus" },
+      "ebusd_season": { "name": "Jahreszeit" },
+      "ebusd_hc_status": { "name": "Heizkreis Status" }
     },
     "binary_sensor": {
       "hp_compressor_active": { "name": "Kompressor" },
@@ -75,7 +129,14 @@
       "hp_error": { "name": "Störung" },
       "hp_warning": { "name": "Warnung" },
       "w2_eheater1_active": { "name": "E-Heizung 1" },
-      "w2_eheater2_active": { "name": "E-Heizung 2" }
+      "w2_eheater2_active": { "name": "E-Heizung 2" },
+      "wcm_burner_active": { "name": "Brenner" },
+      "wcm_heating_active": { "name": "Heizung" },
+      "wcm_hot_water_active": { "name": "Warmwasser" },
+      "wcm_error": { "name": "Störung" },
+      "ebusd_flame_active": { "name": "Flamme" },
+      "ebusd_pump_active": { "name": "Pumpe" },
+      "ebusd_error": { "name": "Störung" }
     },
     "number": {
       "hz_comfort_temp": { "name": "Komforttemperatur" },

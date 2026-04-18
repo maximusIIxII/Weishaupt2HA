@@ -11,3 +11,14 @@ venv/
 .ruff_cache/
 .pytest_cache/
 *.log
+.wcm_credentials
+wcm_dump.md
+wcm_scan.py
+
+# Claude Code local workspace and project memory (contain private notes/credentials)
+.claude/
+CLAUDE.md
+
+# Local media / captures
+*.mp4
+*.mov

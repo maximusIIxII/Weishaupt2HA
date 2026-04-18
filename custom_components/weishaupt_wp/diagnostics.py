@@ -6,12 +6,12 @@ from dataclasses import asdict
 from typing import Any
 
 from homeassistant.components.diagnostics import async_redact_data
-from homeassistant.const import CONF_HOST
+from homeassistant.const import CONF_HOST, CONF_PASSWORD, CONF_USERNAME
 from homeassistant.core import HomeAssistant
 
 from .coordinator import WeishauptConfigEntry
 
-REDACT_KEYS = {CONF_HOST}
+REDACT_KEYS = {CONF_HOST, CONF_PASSWORD, CONF_USERNAME}
 
 
 async def async_get_config_entry_diagnostics(

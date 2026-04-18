@@ -1,0 +1,21 @@
+services:
+  ebusd:
+    image: john30/ebusd:latest
+    container_name: ebusd
+    restart: unless-stopped
+    ports:
+      - "8888:8888"
+      - "8080:8080"
+    volumes:
+      - ./configs:/etc/ebusd:ro
+      - ./logs:/var/log
+    command: >
+      --device=ens:192.168.1.241:9999
+      --scanconfig
+      --configpath=/etc/ebusd
+      --port=8888
+      --httpport=8080
+      --log=all:info
+      --latency=20000
+      --pollinterval=60
+      --updatecheck=off

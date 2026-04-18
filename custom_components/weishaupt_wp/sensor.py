@@ -1,4 +1,4 @@
-"""Sensor platform for Weishaupt Heat Pump."""
+"""Sensor platform for Weishaupt Heat Pump / Gas Boiler."""
 
 from __future__ import annotations
 
@@ -14,17 +14,28 @@ from homeassistant.components.sensor import (
 from homeassistant.const import (
     PERCENTAGE,
     UnitOfEnergy,
+    UnitOfPower,
     UnitOfTemperature,
     UnitOfTime,
+    UnitOfVolumeFlowRate,
 )
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
-from weishaupt_modbus import WeishauptData
+from weishaupt_modbus import EbusdData, WCMData, WeishauptData
 
-from .coordinator import WeishauptConfigEntry
-from .entity import WeishauptEntity
+from .const import CONF_CONNECTION_TYPE, ConnectionType
+from .coordinator import (
+    EbusdDataUpdateCoordinator,
+    WCMDataUpdateCoordinator,
+    WeishauptConfigEntry,
+)
+from .entity import EbusdEntity, WCMEntity, WeishauptEntity
 
+
+# ══════════════════════════════════════════════════════════
+#  Modbus TCP sensors (heat pumps)
+# ══════════════════════════════════════════════════════════
 
 @dataclass(frozen=True, kw_only=True)
 class WeishauptSensorDescription(SensorEntityDescription):
@@ -206,7 +217,6 @@ MISC_SENSORS: tuple[WeishauptSensorDescription, ...] = (
 
 # ── Energy statistics sensors ──
 ENERGY_SENSORS: tuple[WeishauptSensorDescription, ...] = (
-    # Total energy
     WeishauptSensorDescription(
         key="st_total_energy_today",
         translation_key="st_total_energy_today",
@@ -223,7 +233,6 @@ ENERGY_SENSORS: tuple[WeishauptSensorDescription, ...] = (
         state_class=SensorStateClass.TOTAL,
         value_fn=lambda d: d.statistics.total.year,
     ),
-    # Heating energy
     WeishauptSensorDescription(
         key="st_heating_energy_today",
         translation_key="st_heating_energy_today",
@@ -240,7 +249,6 @@ ENERGY_SENSORS: tuple[WeishauptSensorDescription, ...] = (
         state_class=SensorStateClass.TOTAL,
         value_fn=lambda d: d.statistics.heating.year,
     ),
-    # Hot water energy
     WeishauptSensorDescription(
         key="st_hot_water_energy_today",
         translation_key="st_hot_water_energy_today",
@@ -257,7 +265,6 @@ ENERGY_SENSORS: tuple[WeishauptSensorDescription, ...] = (
         state_class=SensorStateClass.TOTAL,
         value_fn=lambda d: d.statistics.hot_water.year,
     ),
-    # Electric energy consumed
     WeishauptSensorDescription(
         key="st_electric_energy_today",
         translation_key="st_electric_energy_today",
@@ -274,7 +281,6 @@ ENERGY_SENSORS: tuple[WeishauptSensorDescription, ...] = (
         state_class=SensorStateClass.TOTAL,
         value_fn=lambda d: d.statistics.electric.year,
     ),
-    # Cooling energy
     WeishauptSensorDescription(
         key="st_cooling_energy_today",
         translation_key="st_cooling_energy_today",
@@ -293,8 +299,279 @@ ENERGY_SENSORS: tuple[WeishauptSensorDescription, ...] = (
     ),
 )
 
-ALL_SENSORS = TEMPERATURE_SENSORS + MISC_SENSORS + ENERGY_SENSORS
+ALL_MODBUS_SENSORS = TEMPERATURE_SENSORS + MISC_SENSORS + ENERGY_SENSORS
 
+
+# ══════════════════════════════════════════════════════════
+#  WCM-COM HTTP sensors (gas boilers / WTC)
+# ══════════════════════════════════════════════════════════
+
+@dataclass(frozen=True, kw_only=True)
+class WCMSensorDescription(SensorEntityDescription):
+    """Describes a WCM-COM sensor entity."""
+
+    value_fn: Callable[[WCMData], float | int | str | None]
+
+
+WCM_TEMPERATURE_SENSORS: tuple[WCMSensorDescription, ...] = (
+    WCMSensorDescription(
+        key="wcm_outdoor_temp",
+        translation_key="wcm_outdoor_temp",
+        native_unit_of_measurement=UnitOfTemperature.CELSIUS,
+        device_class=SensorDeviceClass.TEMPERATURE,
+        state_class=SensorStateClass.MEASUREMENT,
+        value_fn=lambda d: d.sensors.outdoor_temp,
+    ),
+    WCMSensorDescription(
+        key="wcm_damped_outdoor_temp",
+        translation_key="wcm_damped_outdoor_temp",
+        native_unit_of_measurement=UnitOfTemperature.CELSIUS,
+        device_class=SensorDeviceClass.TEMPERATURE,
+        state_class=SensorStateClass.MEASUREMENT,
+        value_fn=lambda d: d.sensors.damped_outdoor_temp,
+    ),
+    WCMSensorDescription(
+        key="wcm_flow_temp",
+        translation_key="wcm_flow_temp",
+        native_unit_of_measurement=UnitOfTemperature.CELSIUS,
+        device_class=SensorDeviceClass.TEMPERATURE,
+        state_class=SensorStateClass.MEASUREMENT,
+        value_fn=lambda d: d.sensors.flow_temp,
+    ),
+    WCMSensorDescription(
+        key="wcm_return_temp",
+        translation_key="wcm_return_temp",
+        native_unit_of_measurement=UnitOfTemperature.CELSIUS,
+        device_class=SensorDeviceClass.TEMPERATURE,
+        state_class=SensorStateClass.MEASUREMENT,
+        value_fn=lambda d: d.sensors.return_temp,
+    ),
+    WCMSensorDescription(
+        key="wcm_hot_water_temp",
+        translation_key="wcm_hot_water_temp",
+        native_unit_of_measurement=UnitOfTemperature.CELSIUS,
+        device_class=SensorDeviceClass.TEMPERATURE,
+        state_class=SensorStateClass.MEASUREMENT,
+        value_fn=lambda d: d.sensors.hot_water_temp,
+    ),
+    WCMSensorDescription(
+        key="wcm_exhaust_temp",
+        translation_key="wcm_exhaust_temp",
+        native_unit_of_measurement=UnitOfTemperature.CELSIUS,
+        device_class=SensorDeviceClass.TEMPERATURE,
+        state_class=SensorStateClass.MEASUREMENT,
+        value_fn=lambda d: d.sensors.exhaust_temp,
+    ),
+    WCMSensorDescription(
+        key="wcm_buffer_top_temp",
+        translation_key="wcm_buffer_top_temp",
+        native_unit_of_measurement=UnitOfTemperature.CELSIUS,
+        device_class=SensorDeviceClass.TEMPERATURE,
+        state_class=SensorStateClass.MEASUREMENT,
+        value_fn=lambda d: d.sensors.buffer_top_temp,
+    ),
+    WCMSensorDescription(
+        key="wcm_buffer_bottom_temp",
+        translation_key="wcm_buffer_bottom_temp",
+        native_unit_of_measurement=UnitOfTemperature.CELSIUS,
+        device_class=SensorDeviceClass.TEMPERATURE,
+        state_class=SensorStateClass.MEASUREMENT,
+        value_fn=lambda d: d.sensors.buffer_bottom_temp,
+    ),
+    WCMSensorDescription(
+        key="wcm_heat_request",
+        translation_key="wcm_heat_request",
+        native_unit_of_measurement=UnitOfTemperature.CELSIUS,
+        device_class=SensorDeviceClass.TEMPERATURE,
+        state_class=SensorStateClass.MEASUREMENT,
+        value_fn=lambda d: d.sensors.heat_request,
+    ),
+)
+
+WCM_OPERATIONAL_SENSORS: tuple[WCMSensorDescription, ...] = (
+    WCMSensorDescription(
+        key="wcm_load_position",
+        translation_key="wcm_load_position",
+        native_unit_of_measurement=PERCENTAGE,
+        state_class=SensorStateClass.MEASUREMENT,
+        icon="mdi:fire",
+        value_fn=lambda d: d.sensors.load_position,
+    ),
+    WCMSensorDescription(
+        key="wcm_load_setting_kw",
+        translation_key="wcm_load_setting_kw",
+        native_unit_of_measurement=UnitOfPower.KILO_WATT,
+        device_class=SensorDeviceClass.POWER,
+        state_class=SensorStateClass.MEASUREMENT,
+        value_fn=lambda d: d.sensors.load_setting_kw,
+    ),
+    WCMSensorDescription(
+        key="wcm_flow_rate",
+        translation_key="wcm_flow_rate",
+        native_unit_of_measurement="l/min",
+        icon="mdi:water-pump",
+        state_class=SensorStateClass.MEASUREMENT,
+        value_fn=lambda d: d.sensors.flow_rate,
+    ),
+    WCMSensorDescription(
+        key="wcm_operating_phase",
+        translation_key="wcm_operating_phase",
+        icon="mdi:state-machine",
+        value_fn=lambda d: _operating_phase_name(d.sensors.operating_phase),
+    ),
+    WCMSensorDescription(
+        key="wcm_error_code",
+        translation_key="wcm_error_code",
+        icon="mdi:alert-circle-outline",
+        value_fn=lambda d: d.sensors.error_code,
+    ),
+)
+
+WCM_STATISTICS_SENSORS: tuple[WCMSensorDescription, ...] = (
+    WCMSensorDescription(
+        key="wcm_burner_hours",
+        translation_key="wcm_burner_hours",
+        native_unit_of_measurement=UnitOfTime.HOURS,
+        device_class=SensorDeviceClass.DURATION,
+        state_class=SensorStateClass.TOTAL_INCREASING,
+        icon="mdi:timer-outline",
+        value_fn=lambda d: d.statistics.burner_hours,
+    ),
+    WCMSensorDescription(
+        key="wcm_burner_cycles",
+        translation_key="wcm_burner_cycles",
+        state_class=SensorStateClass.TOTAL_INCREASING,
+        icon="mdi:counter",
+        value_fn=lambda d: d.statistics.burner_cycles,
+    ),
+)
+
+ALL_WCM_SENSORS = WCM_TEMPERATURE_SENSORS + WCM_OPERATIONAL_SENSORS + WCM_STATISTICS_SENSORS
+
+
+# ══════════════════════════════════════════════════════════
+#  ebusd sensors (gas boilers via eBUS Adapter)
+# ══════════════════════════════════════════════════════════
+
+@dataclass(frozen=True, kw_only=True)
+class EbusdSensorDescription(SensorEntityDescription):
+    """Describes an ebusd sensor entity."""
+
+    value_fn: Callable[[EbusdData], float | int | str | None]
+
+
+EBUSD_TEMPERATURE_SENSORS: tuple[EbusdSensorDescription, ...] = (
+    EbusdSensorDescription(
+        key="ebusd_outdoor_temp",
+        translation_key="ebusd_outdoor_temp",
+        native_unit_of_measurement=UnitOfTemperature.CELSIUS,
+        device_class=SensorDeviceClass.TEMPERATURE,
+        state_class=SensorStateClass.MEASUREMENT,
+        value_fn=lambda d: d.sensors.outdoor_temp,
+    ),
+    EbusdSensorDescription(
+        key="ebusd_flow_temp",
+        translation_key="ebusd_flow_temp",
+        native_unit_of_measurement=UnitOfTemperature.CELSIUS,
+        device_class=SensorDeviceClass.TEMPERATURE,
+        state_class=SensorStateClass.MEASUREMENT,
+        value_fn=lambda d: d.sensors.flow_temp,
+    ),
+    EbusdSensorDescription(
+        key="ebusd_flow_set_temp",
+        translation_key="ebusd_flow_set_temp",
+        native_unit_of_measurement=UnitOfTemperature.CELSIUS,
+        device_class=SensorDeviceClass.TEMPERATURE,
+        state_class=SensorStateClass.MEASUREMENT,
+        value_fn=lambda d: d.sensors.flow_set_temp,
+    ),
+    EbusdSensorDescription(
+        key="ebusd_hot_water_temp",
+        translation_key="ebusd_hot_water_temp",
+        native_unit_of_measurement=UnitOfTemperature.CELSIUS,
+        device_class=SensorDeviceClass.TEMPERATURE,
+        state_class=SensorStateClass.MEASUREMENT,
+        value_fn=lambda d: d.sensors.hot_water_temp,
+    ),
+    EbusdSensorDescription(
+        key="ebusd_dhw_set_temp",
+        translation_key="ebusd_dhw_set_temp",
+        native_unit_of_measurement=UnitOfTemperature.CELSIUS,
+        device_class=SensorDeviceClass.TEMPERATURE,
+        state_class=SensorStateClass.MEASUREMENT,
+        value_fn=lambda d: d.sensors.dhw_set_temp,
+    ),
+    EbusdSensorDescription(
+        key="ebusd_exhaust_temp",
+        translation_key="ebusd_exhaust_temp",
+        native_unit_of_measurement=UnitOfTemperature.CELSIUS,
+        device_class=SensorDeviceClass.TEMPERATURE,
+        state_class=SensorStateClass.MEASUREMENT,
+        value_fn=lambda d: d.sensors.exhaust_temp,
+    ),
+    EbusdSensorDescription(
+        key="ebusd_trend_temp",
+        translation_key="ebusd_trend_temp",
+        native_unit_of_measurement=UnitOfTemperature.CELSIUS,
+        device_class=SensorDeviceClass.TEMPERATURE,
+        state_class=SensorStateClass.MEASUREMENT,
+        value_fn=lambda d: d.sensors.trend_temp,
+    ),
+)
+
+EBUSD_OPERATIONAL_SENSORS: tuple[EbusdSensorDescription, ...] = (
+    EbusdSensorDescription(
+        key="ebusd_load_position",
+        translation_key="ebusd_load_position",
+        native_unit_of_measurement=PERCENTAGE,
+        state_class=SensorStateClass.MEASUREMENT,
+        icon="mdi:fire",
+        value_fn=lambda d: d.sensors.load_position,
+    ),
+    EbusdSensorDescription(
+        key="ebusd_operating_phase",
+        translation_key="ebusd_operating_phase",
+        icon="mdi:state-machine",
+        value_fn=lambda d: d.sensors.operating_phase,
+    ),
+    EbusdSensorDescription(
+        key="ebusd_operating_mode",
+        translation_key="ebusd_operating_mode",
+        icon="mdi:sun-snowflake-variant",
+        value_fn=lambda d: d.sensors.operating_mode,
+    ),
+    EbusdSensorDescription(
+        key="ebusd_season",
+        translation_key="ebusd_season",
+        icon="mdi:weather-partly-cloudy",
+        value_fn=lambda d: d.sensors.season,
+    ),
+    EbusdSensorDescription(
+        key="ebusd_hc_status",
+        translation_key="ebusd_hc_status",
+        icon="mdi:radiator",
+        value_fn=lambda d: d.sensors.hc_status,
+    ),
+)
+
+ALL_EBUSD_SENSORS = EBUSD_TEMPERATURE_SENSORS + EBUSD_OPERATIONAL_SENSORS
+
+
+def _operating_phase_name(phase: int | None) -> str | None:
+    """Convert operating phase number to name."""
+    if phase is None:
+        return None
+    phases = {
+        0: "Standby",
+        1: "Heizen",
+        2: "Warmwasser",
+    }
+    return phases.get(phase, f"Unbekannt ({phase})")
+
+
+# ══════════════════════════════════════════════════════════
+#  Platform setup
+# ══════════════════════════════════════════════════════════
 
 async def async_setup_entry(
     hass: HomeAssistant,
@@ -302,16 +579,56 @@ async def async_setup_entry(
     async_add_entities: AddEntitiesCallback,
 ) -> None:
     """Set up Weishaupt sensor entities."""
-    coordinator = entry.runtime_data
-    async_add_entities(
-        WeishauptSensor(coordinator, description) for description in ALL_SENSORS
-    )
+    conn_type = entry.data.get(CONF_CONNECTION_TYPE, ConnectionType.MODBUS_TCP)
+
+    if conn_type == ConnectionType.WCM_HTTP:
+        coordinator = entry.runtime_data
+        assert isinstance(coordinator, WCMDataUpdateCoordinator)
+        async_add_entities(
+            WCMSensor(coordinator, description)
+            for description in ALL_WCM_SENSORS
+        )
+    elif conn_type == ConnectionType.EBUSD:
+        coordinator = entry.runtime_data
+        assert isinstance(coordinator, EbusdDataUpdateCoordinator)
+        async_add_entities(
+            EbusdSensor(coordinator, description)
+            for description in ALL_EBUSD_SENSORS
+        )
+    else:
+        coordinator = entry.runtime_data
+        async_add_entities(
+            WeishauptSensor(coordinator, description)
+            for description in ALL_MODBUS_SENSORS
+        )
 
 
 class WeishauptSensor(WeishauptEntity, SensorEntity):
-    """A Weishaupt sensor entity."""
+    """A Weishaupt heat pump sensor entity (Modbus)."""
 
     entity_description: WeishauptSensorDescription
+
+    @property
+    def native_value(self) -> float | int | str | None:
+        """Return the sensor value."""
+        return self.entity_description.value_fn(self.coordinator.data)
+
+
+class WCMSensor(WCMEntity, SensorEntity):
+    """A WCM-COM gas boiler sensor entity (HTTP)."""
+
+    entity_description: WCMSensorDescription
+
+    @property
+    def native_value(self) -> float | int | str | None:
+        """Return the sensor value."""
+        return self.entity_description.value_fn(self.coordinator.data)
+
+
+class EbusdSensor(EbusdEntity, SensorEntity):
+    """An ebusd gas boiler sensor entity (eBUS Adapter)."""
+
+    entity_description: EbusdSensorDescription
 
     @property
     def native_value(self) -> float | int | str | None:
