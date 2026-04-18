@@ -13,16 +13,15 @@ from homeassistant.components.binary_sensor import (
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
-from weishaupt_modbus import EbusdData, WCMData, WeishauptData
+from weishaupt_modbus import EbusdData, WeishauptData
 from weishaupt_modbus.const import HeatPumpOperationStatus
 
 from .const import CONF_CONNECTION_TYPE, ConnectionType
 from .coordinator import (
     EbusdDataUpdateCoordinator,
-    WCMDataUpdateCoordinator,
     WeishauptConfigEntry,
 )
-from .entity import EbusdEntity, WCMEntity, WeishauptEntity
+from .entity import EbusdEntity, WeishauptEntity
 
 
 # ══════════════════════════════════════════════════════════
@@ -77,17 +76,6 @@ MODBUS_BINARY_SENSORS: tuple[WeishauptBinarySensorDescription, ...] = (
         is_on_fn=lambda d: d.secondary_heater.eheater2_status != 0,
     ),
 )
-
-
-# ══════════════════════════════════════════════════════════
-#  WCM-COM HTTP binary sensors (gas boilers)
-# ══════════════════════════════════════════════════════════
-
-@dataclass(frozen=True, kw_only=True)
-class WCMBinarySensorDescription(BinarySensorEntityDescription):
-    """Describes a WCM-COM binary sensor entity."""
-
-    is_on_fn: Callable[[WCMData], bool | None]
 
 
 # ══════════════════════════════════════════════════════════
@@ -156,40 +144,6 @@ EBUSD_BINARY_SENSORS: tuple[EbusdBinarySensorDescription, ...] = (
 )
 
 
-WCM_BINARY_SENSORS: tuple[WCMBinarySensorDescription, ...] = (
-    WCMBinarySensorDescription(
-        key="wcm_burner_active",
-        translation_key="wcm_burner_active",
-        device_class=BinarySensorDeviceClass.RUNNING,
-        icon="mdi:fire",
-        is_on_fn=lambda d: (
-            d.sensors.operating_phase is not None
-            and d.sensors.operating_phase > 0
-        ),
-    ),
-    WCMBinarySensorDescription(
-        key="wcm_heating_active",
-        translation_key="wcm_heating_active",
-        device_class=BinarySensorDeviceClass.RUNNING,
-        icon="mdi:radiator",
-        is_on_fn=lambda d: d.sensors.operating_phase == 1,
-    ),
-    WCMBinarySensorDescription(
-        key="wcm_hot_water_active",
-        translation_key="wcm_hot_water_active",
-        device_class=BinarySensorDeviceClass.RUNNING,
-        icon="mdi:water-boiler",
-        is_on_fn=lambda d: d.sensors.operating_phase == 2,
-    ),
-    WCMBinarySensorDescription(
-        key="wcm_error",
-        translation_key="wcm_error",
-        device_class=BinarySensorDeviceClass.PROBLEM,
-        is_on_fn=lambda d: d.sensors.error_code != 0,
-    ),
-)
-
-
 # ══════════════════════════════════════════════════════════
 #  Platform setup
 # ══════════════════════════════════════════════════════════
@@ -202,13 +156,7 @@ async def async_setup_entry(
     """Set up binary sensor entities."""
     conn_type = entry.data.get(CONF_CONNECTION_TYPE, ConnectionType.MODBUS_TCP)
 
-    if conn_type == ConnectionType.WCM_HTTP:
-        coordinator = entry.runtime_data
-        assert isinstance(coordinator, WCMDataUpdateCoordinator)
-        async_add_entities(
-            WCMBinarySensor(coordinator, desc) for desc in WCM_BINARY_SENSORS
-        )
-    elif conn_type == ConnectionType.EBUSD:
+    if conn_type == ConnectionType.EBUSD:
         coordinator = entry.runtime_data
         assert isinstance(coordinator, EbusdDataUpdateCoordinator)
         async_add_entities(
@@ -225,17 +173,6 @@ class WeishauptBinarySensor(WeishauptEntity, BinarySensorEntity):
     """A Weishaupt binary sensor entity (Modbus)."""
 
     entity_description: WeishauptBinarySensorDescription
-
-    @property
-    def is_on(self) -> bool | None:
-        """Return the binary sensor state."""
-        return self.entity_description.is_on_fn(self.coordinator.data)
-
-
-class WCMBinarySensor(WCMEntity, BinarySensorEntity):
-    """A WCM-COM binary sensor entity (HTTP)."""
-
-    entity_description: WCMBinarySensorDescription
 
     @property
     def is_on(self) -> bool | None:

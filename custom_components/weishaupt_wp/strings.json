@@ -10,21 +10,11 @@
       },
       "modbus": {
         "title": "Modbus TCP Connection",
-        "description": "Enter the connection details for your WCM-COM module (Modbus TCP).",
+        "description": "Enter the connection details for your Weishaupt heat pump (Modbus TCP).",
         "data": {
           "host": "Host (IP Address)",
           "port": "Port",
           "slave_id": "Modbus Slave ID"
-        }
-      },
-      "wcm": {
-        "title": "WCM-COM HTTP Connection",
-        "description": "Enter the connection details for your WCM-COM module.",
-        "data": {
-          "host": "Host (IP Address)",
-          "port": "Port",
-          "username": "Username",
-          "password": "Password"
         }
       },
       "ebusd": {
@@ -38,7 +28,7 @@
       }
     },
     "error": {
-      "cannot_connect": "Cannot connect to WCM-COM module. Check IP address, port and credentials.",
+      "cannot_connect": "Cannot connect. Check IP address and port.",
       "unknown": "Unexpected error occurred."
     },
     "abort": {
@@ -94,22 +84,6 @@
       "st_electric_energy_year": { "name": "Electric Energy Year" },
       "st_cooling_energy_today": { "name": "Cooling Energy Today" },
       "st_cooling_energy_year": { "name": "Cooling Energy Year" },
-      "wcm_outdoor_temp": { "name": "Outdoor Temperature" },
-      "wcm_damped_outdoor_temp": { "name": "Damped Outdoor Temperature" },
-      "wcm_flow_temp": { "name": "Flow Temperature" },
-      "wcm_return_temp": { "name": "Return Temperature" },
-      "wcm_hot_water_temp": { "name": "Hot Water Temperature" },
-      "wcm_exhaust_temp": { "name": "Exhaust Temperature" },
-      "wcm_buffer_top_temp": { "name": "Buffer Top Temperature" },
-      "wcm_buffer_bottom_temp": { "name": "Buffer Bottom Temperature" },
-      "wcm_heat_request": { "name": "Heat Request" },
-      "wcm_load_position": { "name": "Burner Modulation" },
-      "wcm_load_setting_kw": { "name": "Current Power" },
-      "wcm_flow_rate": { "name": "Flow Rate" },
-      "wcm_operating_phase": { "name": "Operating Phase" },
-      "wcm_error_code": { "name": "Error Code" },
-      "wcm_burner_hours": { "name": "Burner Operating Hours" },
-      "wcm_burner_cycles": { "name": "Burner Cycles" },
       "ebusd_outdoor_temp": { "name": "Outdoor Temperature" },
       "ebusd_flow_temp": { "name": "Flow Temperature" },
       "ebusd_flow_set_temp": { "name": "Flow Setpoint" },
@@ -137,10 +111,6 @@
       "hp_warning": { "name": "Warning" },
       "w2_eheater1_active": { "name": "E-Heater 1" },
       "w2_eheater2_active": { "name": "E-Heater 2" },
-      "wcm_burner_active": { "name": "Burner" },
-      "wcm_heating_active": { "name": "Heating" },
-      "wcm_hot_water_active": { "name": "Hot Water" },
-      "wcm_error": { "name": "Error" },
       "ebusd_flame_active": { "name": "Flame" },
       "ebusd_pump_active": { "name": "Pump" },
       "ebusd_error": { "name": "Error" },

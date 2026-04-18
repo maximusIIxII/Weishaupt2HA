@@ -8,7 +8,6 @@ MANUFACTURER = "Weishaupt"
 
 DEFAULT_HOST = ""
 DEFAULT_PORT = 502
-DEFAULT_HTTP_PORT = 80
 DEFAULT_EBUSD_PORT = 8888
 DEFAULT_SLAVE_ID = 1
 DEFAULT_SCAN_INTERVAL = 30
@@ -16,8 +15,6 @@ DEFAULT_SCAN_INTERVAL = 30
 CONF_SLAVE_ID = "slave_id"
 CONF_SCAN_INTERVAL = "scan_interval"
 CONF_CONNECTION_TYPE = "connection_type"
-CONF_USERNAME = "username"
-CONF_PASSWORD = "password"
 CONF_EBUSD_CIRCUIT = "ebusd_circuit"
 
 MIN_SCAN_INTERVAL = 10
@@ -28,7 +25,6 @@ class ConnectionType(StrEnum):
     """Connection type to the Weishaupt heating system."""
 
     MODBUS_TCP = "modbus_tcp"   # Heat pumps (WBB) via Modbus TCP
-    WCM_HTTP = "wcm_http"       # Gas boilers (WTC) via WCM-COM HTTP API
     EBUSD = "ebusd"             # Gas boilers (WTC) via eBUS Adapter + ebusd
 
 
@@ -42,12 +38,6 @@ PLATFORMS_MODBUS = [
     "sensor",
     "switch",
     "water_heater",
-]
-
-# Platforms for WCM-COM HTTP (gas boilers)
-PLATFORMS_WCM = [
-    "binary_sensor",
-    "sensor",
 ]
 
 # Platforms for ebusd (gas boilers via eBUS adapter)

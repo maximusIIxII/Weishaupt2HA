@@ -4,8 +4,8 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "weishaupt-modbus"
-version = "0.4.0"
-description = "Async communication library for Weishaupt heating systems (Modbus TCP + WCM-COM HTTP + ebusd)"
+version = "0.5.0"
+description = "Async communication library for Weishaupt heating systems (Modbus TCP + ebusd)"
 readme = "README.md"
 license = "MIT"
 requires-python = ">=3.12"
@@ -14,7 +14,6 @@ authors = [
 ]
 dependencies = [
     "pymodbus>=3.6",
-    "httpx>=0.25.0",
 ]
 
 [project.optional-dependencies]

@@ -6,7 +6,7 @@ from datetime import timedelta
 import logging
 
 from homeassistant.config_entries import ConfigEntry
-from homeassistant.const import CONF_HOST, CONF_PASSWORD, CONF_PORT, CONF_USERNAME
+from homeassistant.const import CONF_HOST, CONF_PORT
 from homeassistant.core import HomeAssistant
 
 from .const import (
@@ -19,11 +19,9 @@ from .const import (
     ConnectionType,
     PLATFORMS_EBUSD,
     PLATFORMS_MODBUS,
-    PLATFORMS_WCM,
 )
 from .coordinator import (
     EbusdDataUpdateCoordinator,
-    WCMDataUpdateCoordinator,
     WeishauptConfigEntry,
     WeishauptDataUpdateCoordinator,
 )
@@ -34,8 +32,6 @@ _LOGGER = logging.getLogger(__name__)
 def _get_platforms(entry: ConfigEntry) -> list[str]:
     """Return the platform list based on connection type."""
     conn_type = entry.data.get(CONF_CONNECTION_TYPE, ConnectionType.MODBUS_TCP)
-    if conn_type == ConnectionType.WCM_HTTP:
-        return PLATFORMS_WCM
     if conn_type == ConnectionType.EBUSD:
         return PLATFORMS_EBUSD
     return PLATFORMS_MODBUS
@@ -48,21 +44,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: WeishauptConfigEntry) ->
     scan_interval = entry.options.get(CONF_SCAN_INTERVAL, DEFAULT_SCAN_INTERVAL)
     conn_type = entry.data.get(CONF_CONNECTION_TYPE, ConnectionType.MODBUS_TCP)
 
-    if conn_type == ConnectionType.WCM_HTTP:
-        # WCM-COM HTTP client for gas boilers
-        from weishaupt_modbus import WeishauptWCMClient
-
-        username = entry.data.get(CONF_USERNAME, "admin")
-        password = entry.data.get(CONF_PASSWORD, "")
-        client = WeishauptWCMClient(
-            host=host, port=port, username=username, password=password
-        )
-        coordinator = WCMDataUpdateCoordinator(
-            hass=hass,
-            client=client,
-            update_interval=timedelta(seconds=scan_interval),
-        )
-    elif conn_type == ConnectionType.EBUSD:
+    if conn_type == ConnectionType.EBUSD:
         # ebusd TCP client for eBUS adapter
         from weishaupt_modbus import WeishauptEbusdClient
 

@@ -10,21 +10,11 @@
       },
       "modbus": {
         "title": "Modbus TCP Verbindung",
-        "description": "Geben Sie die Verbindungsdaten Ihres WCM-COM Moduls ein (Modbus TCP).",
+        "description": "Geben Sie die Verbindungsdaten Ihrer Weishaupt Wärmepumpe ein (Modbus TCP).",
         "data": {
           "host": "Host (IP-Adresse)",
           "port": "Port",
           "slave_id": "Modbus Slave-ID"
-        }
-      },
-      "wcm": {
-        "title": "WCM-COM HTTP Verbindung",
-        "description": "Geben Sie die Verbindungsdaten Ihres WCM-COM Moduls ein.",
-        "data": {
-          "host": "Host (IP-Adresse)",
-          "port": "Port",
-          "username": "Benutzername",
-          "password": "Passwort"
         }
       },
       "ebusd": {
@@ -38,7 +28,7 @@
       }
     },
     "error": {
-      "cannot_connect": "Verbindung zum WCM-COM Modul nicht möglich. IP-Adresse, Port und Zugangsdaten prüfen.",
+      "cannot_connect": "Verbindung nicht möglich. IP-Adresse und Port prüfen.",
       "unknown": "Unbekannter Fehler aufgetreten."
     },
     "abort": {
@@ -94,22 +84,6 @@
       "st_electric_energy_year": { "name": "Elektrische Energie Jahr" },
       "st_cooling_energy_today": { "name": "Kühlenergie heute" },
       "st_cooling_energy_year": { "name": "Kühlenergie Jahr" },
-      "wcm_outdoor_temp": { "name": "Außentemperatur" },
-      "wcm_damped_outdoor_temp": { "name": "Gedämpfte Außentemperatur" },
-      "wcm_flow_temp": { "name": "Vorlauftemperatur" },
-      "wcm_return_temp": { "name": "Rücklauftemperatur" },
-      "wcm_hot_water_temp": { "name": "Warmwassertemperatur" },
-      "wcm_exhaust_temp": { "name": "Abgastemperatur" },
-      "wcm_buffer_top_temp": { "name": "Puffer oben" },
-      "wcm_buffer_bottom_temp": { "name": "Puffer unten" },
-      "wcm_heat_request": { "name": "Wärmeanforderung" },
-      "wcm_load_position": { "name": "Brennermodulation" },
-      "wcm_load_setting_kw": { "name": "Aktuelle Leistung" },
-      "wcm_flow_rate": { "name": "Durchfluss" },
-      "wcm_operating_phase": { "name": "Betriebsphase" },
-      "wcm_error_code": { "name": "Fehlercode" },
-      "wcm_burner_hours": { "name": "Brenner Betriebsstunden" },
-      "wcm_burner_cycles": { "name": "Brenner Schaltspiele" },
       "ebusd_outdoor_temp": { "name": "Außentemperatur" },
       "ebusd_flow_temp": { "name": "Vorlauftemperatur" },
       "ebusd_flow_set_temp": { "name": "Vorlauf Soll" },
@@ -137,10 +111,6 @@
       "hp_warning": { "name": "Warnung" },
       "w2_eheater1_active": { "name": "E-Heizung 1" },
       "w2_eheater2_active": { "name": "E-Heizung 2" },
-      "wcm_burner_active": { "name": "Brenner" },
-      "wcm_heating_active": { "name": "Heizung" },
-      "wcm_hot_water_active": { "name": "Warmwasser" },
-      "wcm_error": { "name": "Störung" },
       "ebusd_flame_active": { "name": "Flamme" },
       "ebusd_pump_active": { "name": "Pumpe" },
       "ebusd_error": { "name": "Störung" },
