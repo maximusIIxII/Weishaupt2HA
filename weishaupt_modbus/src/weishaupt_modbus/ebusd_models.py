@@ -47,6 +47,17 @@ class EbusdSensorData:
     gas_valve1_active: int | None = None
     gas_valve2_active: int | None = None
 
+    # Editable setpoints — read actively, written via async_write_field.
+    # Populated only when the ebusd instance has hc.user.inc / hwc.user.inc
+    # loaded (i.e. not running with --scanconfig on a flat J0EK3R layout).
+    summer_threshold: float | None = None
+    room_normal_temp: float | None = None
+    room_reduced_temp: float | None = None
+    frost_protection_temp: float | None = None
+    heating_curve_gradient: float | None = None
+    dhw_setpoint: float | None = None
+    dhw_min: float | None = None
+
 
 @dataclass
 class EbusdData:

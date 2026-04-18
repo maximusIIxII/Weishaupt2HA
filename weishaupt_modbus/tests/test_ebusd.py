@@ -9,7 +9,10 @@ from __future__ import annotations
 
 import asyncio
 
+import pytest
+
 from weishaupt_modbus.ebusd_client import WeishauptEbusdClient
+from weishaupt_modbus.exceptions import WeishauptWriteError
 from weishaupt_modbus.ebusd_const import (
     ALL_FIELDS,
     BROADCASTS,
@@ -353,9 +356,20 @@ def _make_client_with_responses(*responses: str) -> tuple[WeishauptEbusdClient, 
 
 
 async def test_async_read_all_happy_path_extracts_all_fields():
-    """With live broadcasts queued in BROADCASTS order, every mapped field
-    must land in EbusdData with the expected typed value."""
-    client, writer = _make_client_with_responses(SC_ACT_LIVE, HC1_SET_LIVE)
+    """With live broadcasts + setting responses queued in the exact order
+    async_read_all issues them, every mapped field lands in EbusdData."""
+    client, writer = _make_client_with_responses(
+        SC_ACT_LIVE,
+        HC1_SET_LIVE,
+        # Settings — same order as EBUSD_SETTINGS in ebusd_const.py.
+        "21.0",    # summer_threshold
+        "20.0",    # room_normal_temp
+        "16.0",    # room_reduced_temp
+        "5.0",     # frost_protection_temp
+        "1.2",     # heating_curve_gradient
+        "50.0",    # dhw_setpoint
+        "45.0",    # dhw_min
+    )
 
     data = await client.async_read_all()
 
@@ -380,12 +394,51 @@ async def test_async_read_all_happy_path_extracts_all_fields():
     assert data.sensors.hc_status == "hotwater"
     assert data.sensors.dhw_set_temp == 50.0
 
-    # Commands issued in the expected order — one per broadcast.
-    assert writer.written == [b"read -c sc Act\n", b"read -c hc1 Set\n"]
+    # Settings (active reads, one per EBUSD_SETTINGS entry)
+    assert data.sensors.summer_threshold == 21.0
+    assert data.sensors.room_normal_temp == 20.0
+    assert data.sensors.room_reduced_temp == 16.0
+    assert data.sensors.frost_protection_temp == 5.0
+    assert data.sensors.heating_curve_gradient == 1.2
+    assert data.sensors.dhw_setpoint == 50.0
+    assert data.sensors.dhw_min == 45.0
+
+    # Broadcasts issued first, then the 7 setting reads in order.
+    assert writer.written == [
+        b"read -c sc Act\n",
+        b"read -c hc1 Set\n",
+        b"read -c hc1 SummerWinterChangeOverTemperature\n",
+        b"read -c hc1 NormalSetTemp\n",
+        b"read -c hc1 ReducedSetTemp\n",
+        b"read -c hc1 FrostProtection\n",
+        b"read -c hc1 Gradient\n",
+        b"read -c hc1 DHWSetpoint\n",
+        b"read -c hc1 DHWMin\n",
+    ]
 
     # raw_values exposes only non-None entries for dashboards/diagnostics.
     assert "flow_temp" in data.raw_values
     assert "hc_set_pressure" not in data.raw_values  # live response has '-'
+    assert "summer_threshold" in data.raw_values
+
+
+async def test_async_read_all_settings_err_fall_back_to_none():
+    """When ebusd has no hc.user.inc loaded (e.g. still running --scanconfig),
+    each setting read returns ERR — attributes must degrade to None cleanly."""
+    client, _ = _make_client_with_responses(
+        SC_ACT_LIVE,
+        HC1_SET_LIVE,
+        *["ERR: element not found"] * 7,
+    )
+
+    data = await client.async_read_all()
+
+    # Broadcasts still good
+    assert data.sensors.flow_temp == 69.0
+    # Settings all None — entities will show Unknown in HA
+    assert data.sensors.summer_threshold is None
+    assert data.sensors.room_normal_temp is None
+    assert data.sensors.dhw_setpoint is None
 
 
 async def test_async_read_all_error_response_yields_none_fields():
@@ -394,6 +447,7 @@ async def test_async_read_all_error_response_yields_none_fields():
     client, _ = _make_client_with_responses(
         "ERR: message not defined",  # sc.Act unavailable
         HC1_SET_LIVE,
+        *["ERR: element not found"] * 7,  # settings unavailable
     )
 
     data = await client.async_read_all()
@@ -410,17 +464,60 @@ async def test_async_read_all_error_response_yields_none_fields():
 
 
 async def test_async_read_all_both_broadcasts_error():
-    """Full outage: both broadcasts return ERR — no crash, all None."""
+    """Full outage: everything returns ERR — no crash, all None."""
     client, _ = _make_client_with_responses(
         "ERR: no signal",
         "ERR: no signal",
+        *["ERR: no signal"] * 7,
     )
 
     data = await client.async_read_all()
 
     assert data.sensors.flow_temp is None
     assert data.sensors.hc_status is None
+    assert data.sensors.summer_threshold is None
     assert data.raw_values == {}
+
+
+# ──────────────────────────────────────────────────────────
+# async_write_field — the v0.6 write path
+# ──────────────────────────────────────────────────────────
+
+
+async def test_async_write_field_sends_correct_command():
+    """Happy path: ebusd responds 'done', no exception, command well-formed."""
+    client, writer = _make_client_with_responses("done")
+    await client.async_write_field("hc1", "SummerWinterChangeOverTemperature", 21.0)
+    assert writer.written == [
+        b"write -c hc1 SummerWinterChangeOverTemperature 21.0\n"
+    ]
+
+
+async def test_async_write_field_err_response_raises():
+    """'ERR:' responses from ebusd must surface as WeishauptWriteError."""
+    client, _ = _make_client_with_responses("ERR: element not found")
+    with pytest.raises(WeishauptWriteError, match="element not found"):
+        await client.async_write_field("hc1", "FakeMessage", 1)
+
+
+async def test_async_write_field_empty_response_raises():
+    """Blank response is treated as a protocol glitch — safer to fail."""
+    client, _ = _make_client_with_responses("")
+    with pytest.raises(WeishauptWriteError, match="empty response"):
+        await client.async_write_field("hc1", "X", 1)
+
+
+async def test_async_write_field_accepts_int_and_str_values():
+    """The value is stringified — int, float, and str should all work."""
+    client, writer = _make_client_with_responses("done", "done", "done")
+    await client.async_write_field("hc1", "Gradient", 1.2)
+    await client.async_write_field("hc1", "NormalSetTemp", 21)
+    await client.async_write_field("hwc", "DHWSetpoint", "50.0")
+    assert writer.written == [
+        b"write -c hc1 Gradient 1.2\n",
+        b"write -c hc1 NormalSetTemp 21\n",
+        b"write -c hwc DHWSetpoint 50.0\n",
+    ]
 
 
 async def test_info_banner_does_not_leak_into_subsequent_reads():
@@ -445,6 +542,7 @@ async def test_info_banner_does_not_leak_into_subsequent_reads():
         info_banner,     # response to `info`
         SC_ACT_LIVE,     # response to `read -c sc Act`
         HC1_SET_LIVE,    # response to `read -c hc1 Set`
+        *["ERR: element not found"] * 7,  # settings unavailable in this test
     )
 
     # Simulate the real startup sequence: identify_device calls info first.

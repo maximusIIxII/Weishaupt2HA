@@ -127,7 +127,14 @@
       "ww_normal_temp": { "name": "Warmwasser Normaltemperatur" },
       "ww_reduced_temp": { "name": "Warmwasser Absenktemperatur" },
       "w2_limit_temp": { "name": "2. WEZ Grenztemperatur" },
-      "w2_bivalence_temp": { "name": "Bivalenztemperatur" }
+      "w2_bivalence_temp": { "name": "Bivalenztemperatur" },
+      "ebusd_summer_threshold": { "name": "Sommer-/Winter-Schwelle" },
+      "ebusd_room_normal_temp": { "name": "Raum Normaltemperatur" },
+      "ebusd_room_reduced_temp": { "name": "Raum Absenktemperatur" },
+      "ebusd_frost_protection": { "name": "Frostschutz" },
+      "ebusd_heating_curve": { "name": "Heizkennlinie" },
+      "ebusd_dhw_setpoint": { "name": "Warmwasser Soll" },
+      "ebusd_dhw_min": { "name": "Warmwasser Minimum" }
     },
     "select": {
       "sys_operation_mode": { "name": "Systembetriebsart" },

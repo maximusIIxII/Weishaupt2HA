@@ -15,7 +15,7 @@ from homeassistant.const import UnitOfTemperature
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
-from weishaupt_modbus import WeishauptData
+from weishaupt_modbus import EbusdData, WeishauptData
 from weishaupt_modbus.const import (
     REG_HZ_COMFORT_TEMP,
     REG_HZ_HEATING_CURVE,
@@ -29,8 +29,13 @@ from weishaupt_modbus.const import (
     TEMPERATURE_SCALE,
 )
 
-from .coordinator import WeishauptConfigEntry, WeishauptDataUpdateCoordinator
-from .entity import WeishauptEntity
+from .const import CONF_CONNECTION_TYPE, ConnectionType
+from .coordinator import (
+    EbusdDataUpdateCoordinator,
+    WeishauptConfigEntry,
+    WeishauptDataUpdateCoordinator,
+)
+from .entity import EbusdEntity, WeishauptEntity
 
 
 @dataclass(frozen=True, kw_only=True)
@@ -147,16 +152,130 @@ NUMBER_DESCRIPTIONS: tuple[WeishauptNumberDescription, ...] = (
 )
 
 
+# ══════════════════════════════════════════════════════════
+#  ebusd numbers (gas boilers via eBUS Adapter)
+# ══════════════════════════════════════════════════════════
+
+@dataclass(frozen=True, kw_only=True)
+class EbusdNumberDescription(NumberEntityDescription):
+    """Describes an ebusd number entity."""
+
+    value_fn: Callable[[EbusdData], float | None]
+    # The ebusd (circuit, message) pair to write into.
+    ebusd_circuit: str
+    ebusd_message: str
+
+
+EBUSD_NUMBERS: tuple[EbusdNumberDescription, ...] = (
+    EbusdNumberDescription(
+        key="ebusd_summer_threshold",
+        translation_key="ebusd_summer_threshold",
+        native_unit_of_measurement=UnitOfTemperature.CELSIUS,
+        device_class=NumberDeviceClass.TEMPERATURE,
+        native_min_value=5.0,
+        native_max_value=30.0,
+        native_step=0.5,
+        icon="mdi:sun-snowflake-variant",
+        value_fn=lambda d: d.sensors.summer_threshold,
+        ebusd_circuit="hc1",
+        ebusd_message="SummerWinterChangeOverTemperature",
+    ),
+    EbusdNumberDescription(
+        key="ebusd_room_normal_temp",
+        translation_key="ebusd_room_normal_temp",
+        native_unit_of_measurement=UnitOfTemperature.CELSIUS,
+        device_class=NumberDeviceClass.TEMPERATURE,
+        native_min_value=10.0,
+        native_max_value=25.0,
+        native_step=0.5,
+        value_fn=lambda d: d.sensors.room_normal_temp,
+        ebusd_circuit="hc1",
+        ebusd_message="NormalSetTemp",
+    ),
+    EbusdNumberDescription(
+        key="ebusd_room_reduced_temp",
+        translation_key="ebusd_room_reduced_temp",
+        native_unit_of_measurement=UnitOfTemperature.CELSIUS,
+        device_class=NumberDeviceClass.TEMPERATURE,
+        native_min_value=10.0,
+        native_max_value=25.0,
+        native_step=0.5,
+        value_fn=lambda d: d.sensors.room_reduced_temp,
+        ebusd_circuit="hc1",
+        ebusd_message="ReducedSetTemp",
+    ),
+    EbusdNumberDescription(
+        key="ebusd_frost_protection",
+        translation_key="ebusd_frost_protection",
+        native_unit_of_measurement=UnitOfTemperature.CELSIUS,
+        device_class=NumberDeviceClass.TEMPERATURE,
+        native_min_value=0.0,
+        native_max_value=10.0,
+        native_step=0.5,
+        icon="mdi:snowflake-thermometer",
+        value_fn=lambda d: d.sensors.frost_protection_temp,
+        ebusd_circuit="hc1",
+        ebusd_message="FrostProtection",
+    ),
+    EbusdNumberDescription(
+        key="ebusd_heating_curve",
+        translation_key="ebusd_heating_curve",
+        native_min_value=0.0,
+        native_max_value=4.0,
+        native_step=0.05,
+        mode=NumberMode.BOX,
+        icon="mdi:chart-bell-curve-cumulative",
+        value_fn=lambda d: d.sensors.heating_curve_gradient,
+        ebusd_circuit="hc1",
+        ebusd_message="Gradient",
+    ),
+    EbusdNumberDescription(
+        key="ebusd_dhw_setpoint",
+        translation_key="ebusd_dhw_setpoint",
+        native_unit_of_measurement=UnitOfTemperature.CELSIUS,
+        device_class=NumberDeviceClass.TEMPERATURE,
+        native_min_value=30.0,
+        native_max_value=65.0,
+        native_step=0.5,
+        icon="mdi:water-thermometer",
+        value_fn=lambda d: d.sensors.dhw_setpoint,
+        ebusd_circuit="hc1",
+        ebusd_message="DHWSetpoint",
+    ),
+    EbusdNumberDescription(
+        key="ebusd_dhw_min",
+        translation_key="ebusd_dhw_min",
+        native_unit_of_measurement=UnitOfTemperature.CELSIUS,
+        device_class=NumberDeviceClass.TEMPERATURE,
+        native_min_value=20.0,
+        native_max_value=50.0,
+        native_step=0.5,
+        icon="mdi:water-thermometer-outline",
+        value_fn=lambda d: d.sensors.dhw_min,
+        ebusd_circuit="hc1",
+        ebusd_message="DHWMin",
+    ),
+)
+
+
 async def async_setup_entry(
     hass: HomeAssistant,
     entry: WeishauptConfigEntry,
     async_add_entities: AddEntitiesCallback,
 ) -> None:
     """Set up Weishaupt number entities."""
+    conn_type = entry.data.get(CONF_CONNECTION_TYPE, ConnectionType.MODBUS_TCP)
     coordinator = entry.runtime_data
-    async_add_entities(
-        WeishauptNumber(coordinator, desc) for desc in NUMBER_DESCRIPTIONS
-    )
+
+    if conn_type == ConnectionType.EBUSD:
+        assert isinstance(coordinator, EbusdDataUpdateCoordinator)
+        async_add_entities(
+            EbusdNumber(coordinator, desc) for desc in EBUSD_NUMBERS
+        )
+    else:
+        async_add_entities(
+            WeishauptNumber(coordinator, desc) for desc in NUMBER_DESCRIPTIONS
+        )
 
 
 class WeishauptNumber(WeishauptEntity, NumberEntity):
@@ -174,4 +293,23 @@ class WeishauptNumber(WeishauptEntity, NumberEntity):
         raw = int(round(value / self.entity_description.scale))
         await self.coordinator.async_write_register(
             self.entity_description.register_address, raw
+        )
+
+
+class EbusdNumber(EbusdEntity, NumberEntity):
+    """An ebusd number entity for adjustable user-level setpoints."""
+
+    entity_description: EbusdNumberDescription
+
+    @property
+    def native_value(self) -> float | None:
+        """Return the current value."""
+        return self.entity_description.value_fn(self.coordinator.data)
+
+    async def async_set_native_value(self, value: float) -> None:
+        """Write the new value to ebusd, then refresh."""
+        await self.coordinator.async_write_field(
+            self.entity_description.ebusd_circuit,
+            self.entity_description.ebusd_message,
+            value,
         )

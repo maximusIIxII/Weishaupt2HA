@@ -104,6 +104,18 @@ class EbusdDataUpdateCoordinator(DataUpdateCoordinator[EbusdData]):
         except WeishauptModbusError as err:
             raise UpdateFailed(f"Error communicating with ebusd: {err}") from err
 
+    async def async_write_field(
+        self, circuit: str, message: str, value: float | int | str
+    ) -> None:
+        """Write a value to ebusd and refresh cached data."""
+        try:
+            await self.client.async_write_field(circuit, message, value)
+        except WeishauptModbusError as err:
+            raise UpdateFailed(
+                f"Error writing {circuit}.{message}: {err}"
+            ) from err
+        await self.async_request_refresh()
+
     async def async_shutdown(self) -> None:
         """Disconnect from ebusd on shutdown."""
         await super().async_shutdown()

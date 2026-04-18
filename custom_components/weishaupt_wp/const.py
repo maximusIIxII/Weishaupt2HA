@@ -43,6 +43,7 @@ PLATFORMS_MODBUS = [
 # Platforms for ebusd (gas boilers via eBUS adapter)
 PLATFORMS_EBUSD = [
     "binary_sensor",
+    "number",
     "sensor",
 ]
 

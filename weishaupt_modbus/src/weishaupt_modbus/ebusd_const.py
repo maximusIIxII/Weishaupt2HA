@@ -91,3 +91,25 @@ BROADCASTS: list[tuple[str, str]] = [
     (CIRCUIT_SC, "Act"),
     (CIRCUIT_HC1, "Set"),
 ]
+
+
+# ──────────────────────────────────────────────────────────
+#  Active reads — editable user-level setpoints (v0.6)
+#
+#  These are not broadcast by the WTC. They come from J0EK3R's hc.user.inc
+#  and hwc.user.inc which are loaded when ebusd runs without --scanconfig.
+#  Each entry: (attribute_name_on_EbusdSensorData, circuit, ebusd_message_name)
+#
+#  read path:  `read -c <circuit> <message>` — ebusd caches these
+#  write path: `write -c <circuit> <message> <value>` — see async_write_field
+# ──────────────────────────────────────────────────────────
+
+EBUSD_SETTINGS: list[tuple[str, str, str]] = [
+    ("summer_threshold", CIRCUIT_HC1, "SummerWinterChangeOverTemperature"),
+    ("room_normal_temp", CIRCUIT_HC1, "NormalSetTemp"),
+    ("room_reduced_temp", CIRCUIT_HC1, "ReducedSetTemp"),
+    ("frost_protection_temp", CIRCUIT_HC1, "FrostProtection"),
+    ("heating_curve_gradient", CIRCUIT_HC1, "Gradient"),
+    ("dhw_setpoint", CIRCUIT_HC1, "DHWSetpoint"),
+    ("dhw_min", CIRCUIT_HC1, "DHWMin"),
+]

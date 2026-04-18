@@ -127,7 +127,14 @@
       "ww_normal_temp": { "name": "Hot Water Normal Temp" },
       "ww_reduced_temp": { "name": "Hot Water Reduced Temp" },
       "w2_limit_temp": { "name": "2nd Heater Limit Temp" },
-      "w2_bivalence_temp": { "name": "Bivalence Temperature" }
+      "w2_bivalence_temp": { "name": "Bivalence Temperature" },
+      "ebusd_summer_threshold": { "name": "Summer/Winter Threshold" },
+      "ebusd_room_normal_temp": { "name": "Room Normal Temperature" },
+      "ebusd_room_reduced_temp": { "name": "Room Reduced Temperature" },
+      "ebusd_frost_protection": { "name": "Frost Protection" },
+      "ebusd_heating_curve": { "name": "Heating Curve" },
+      "ebusd_dhw_setpoint": { "name": "Hot Water Setpoint" },
+      "ebusd_dhw_min": { "name": "Hot Water Minimum" }
     },
     "select": {
       "sys_operation_mode": { "name": "System Operation Mode" },

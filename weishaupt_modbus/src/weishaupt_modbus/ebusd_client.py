@@ -19,10 +19,15 @@ from .ebusd_const import (
     BROADCASTS,
     DEFAULT_EBUSD_PORT,
     DEFAULT_EBUSD_TIMEOUT,
+    EBUSD_SETTINGS,
     EbusdField,
 )
 from .ebusd_models import EbusdData, EbusdDeviceInfo, EbusdSensorData
-from .exceptions import WeishauptConnectionError, WeishauptReadError
+from .exceptions import (
+    WeishauptConnectionError,
+    WeishauptReadError,
+    WeishauptWriteError,
+)
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -118,6 +123,30 @@ class WeishauptEbusdClient:
             raise WeishauptConnectionError(
                 f"ebusd communication error: {err}"
             ) from err
+
+    async def _read_single_value(self, circuit: str, message: str) -> float | None:
+        """Read an active (non-broadcast) message and parse as float.
+
+        Used for user-level setpoints exposed via `ebusctl read -c <c> <m>`.
+        ebusd caches these between polls so repeated calls stay cheap.
+        """
+        cmd = f"read -c {circuit} {message}"
+        async with self._lock:
+            response = await self._send_command(cmd)
+
+        if not response or response.startswith("ERR:"):
+            return None
+        first_line = response.split("\n", 1)[0].strip()
+        try:
+            return float(first_line)
+        except ValueError:
+            _LOGGER.debug(
+                "ebusd %s.%s: cannot parse %r as float",
+                circuit,
+                message,
+                first_line,
+            )
+            return None
 
     async def _read_broadcast(self, circuit: str, message: str) -> str | None:
         """Read a cached broadcast message. Returns raw response or None."""
@@ -217,10 +246,51 @@ class WeishauptEbusdClient:
             gas_valve2_active=values.get("gas_valve2_active"),
         )
 
+        # Active reads for editable setpoints. ebusd returns None for each
+        # setting whose message isn't loaded — that's the case on installs
+        # still running with --scanconfig. The integration degrades
+        # gracefully: the number entities go to Unknown.
+        for attr, circuit, message in EBUSD_SETTINGS:
+            try:
+                val = await self._read_single_value(circuit, message)
+            except WeishauptConnectionError:
+                val = None
+            setattr(sensors, attr, val)
+            if val is not None:
+                values[attr] = val
+
         return EbusdData(
             sensors=sensors,
             raw_values={k: v for k, v in values.items() if v is not None},
         )
+
+    async def async_write_field(
+        self, circuit: str, message: str, value: float | int | str
+    ) -> None:
+        """Write a value to an ebusd message.
+
+        Equivalent to `ebusctl write -c <circuit> <message> <value>`.
+        ebusd answers "done" on success and "ERR: ..." on failure.
+        """
+        cmd = f"write -c {circuit} {message} {value}"
+        async with self._lock:
+            response = await self._send_command(cmd)
+
+        if not response:
+            raise WeishauptWriteError(
+                f"empty response from ebusd when writing {circuit}.{message}"
+            )
+        if response.startswith("ERR:"):
+            raise WeishauptWriteError(
+                f"ebusd rejected write to {circuit}.{message}: {response}"
+            )
+        if response.strip().lower() != "done":
+            _LOGGER.warning(
+                "unexpected write response from %s.%s: %r",
+                circuit,
+                message,
+                response,
+            )
 
     async def async_test_connection(self) -> bool:
         """Test if ebusd is reachable and has signal."""

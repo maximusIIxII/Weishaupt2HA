@@ -6,7 +6,7 @@
   "dependencies": [],
   "documentation": "https://github.com/timvanwasen/Weishaupt2HA",
   "iot_class": "local_polling",
-  "requirements": ["weishaupt-modbus==0.5.1"],
-  "version": "0.5.2",
+  "requirements": ["weishaupt-modbus==0.6.0"],
+  "version": "0.6.0",
   "integration_type": "device"
 }
