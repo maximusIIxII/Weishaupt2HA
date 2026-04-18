@@ -120,8 +120,8 @@ def test_sc_act_flame_active_is_one():
 
 def test_sc_act_gas_valves():
     client = _client()
-    gv1 = next(f for f in SC_ACT_FIELDS if f.key == "gas_valve1")
-    gv2 = next(f for f in SC_ACT_FIELDS if f.key == "gas_valve2")
+    gv1 = next(f for f in SC_ACT_FIELDS if f.key == "gas_valve1_active")
+    gv2 = next(f for f in SC_ACT_FIELDS if f.key == "gas_valve2_active")
     assert client._parse_field(SC_ACT_LIVE, gv1) == 1
     assert client._parse_field(SC_ACT_LIVE, gv2) == 1
 
@@ -289,6 +289,8 @@ def test_ebusd_sensor_data_defaults_to_none():
     assert sensors.outdoor_temp is None
     assert sensors.flow_temp is None
     assert sensors.flame_active is None
+    assert sensors.gas_valve1_active is None
+    assert sensors.gas_valve2_active is None
 
 
 def test_ebusd_device_info_defaults():

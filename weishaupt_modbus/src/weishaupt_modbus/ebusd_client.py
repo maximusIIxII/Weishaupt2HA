@@ -197,6 +197,8 @@ class WeishauptEbusdClient:
             flame_active=values.get("flame_active"),
             pump_active=values.get("pump_active"),
             error_active=values.get("error_active"),
+            gas_valve1_active=values.get("gas_valve1_active"),
+            gas_valve2_active=values.get("gas_valve2_active"),
         )
 
         return EbusdData(

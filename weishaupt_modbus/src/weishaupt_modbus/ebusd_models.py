@@ -44,6 +44,8 @@ class EbusdSensorData:
     flame_active: int | None = None
     pump_active: int | None = None
     error_active: int | None = None
+    gas_valve1_active: int | None = None
+    gas_valve2_active: int | None = None
 
 
 @dataclass

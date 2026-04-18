@@ -131,6 +131,28 @@ EBUSD_BINARY_SENSORS: tuple[EbusdBinarySensorDescription, ...] = (
             and d.sensors.error_active > 0
         ),
     ),
+    EbusdBinarySensorDescription(
+        key="ebusd_gas_valve1_active",
+        translation_key="ebusd_gas_valve1_active",
+        device_class=BinarySensorDeviceClass.OPENING,
+        icon="mdi:valve",
+        entity_registry_enabled_default=False,
+        is_on_fn=lambda d: (
+            d.sensors.gas_valve1_active is not None
+            and d.sensors.gas_valve1_active > 0
+        ),
+    ),
+    EbusdBinarySensorDescription(
+        key="ebusd_gas_valve2_active",
+        translation_key="ebusd_gas_valve2_active",
+        device_class=BinarySensorDeviceClass.OPENING,
+        icon="mdi:valve",
+        entity_registry_enabled_default=False,
+        is_on_fn=lambda d: (
+            d.sensors.gas_valve2_active is not None
+            and d.sensors.gas_valve2_active > 0
+        ),
+    ),
 )
 
 

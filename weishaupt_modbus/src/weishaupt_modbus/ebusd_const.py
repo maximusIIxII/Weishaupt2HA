@@ -50,8 +50,8 @@ class EbusdField:
 SC_ACT_FIELDS: list[EbusdField] = [
     EbusdField("operating_phase", CIRCUIT_SC, "Act", 1, "str"),
     EbusdField("flame_active", CIRCUIT_SC, "Act", 5, "int"),
-    EbusdField("gas_valve1", CIRCUIT_SC, "Act", 6, "int"),
-    EbusdField("gas_valve2", CIRCUIT_SC, "Act", 7, "int"),
+    EbusdField("gas_valve1_active", CIRCUIT_SC, "Act", 6, "int"),
+    EbusdField("gas_valve2_active", CIRCUIT_SC, "Act", 7, "int"),
     EbusdField("pump_active", CIRCUIT_SC, "Act", 8, "int"),
     EbusdField("error_active", CIRCUIT_SC, "Act", 9, "int"),
     EbusdField("season", CIRCUIT_SC, "Act", 11, "str"),

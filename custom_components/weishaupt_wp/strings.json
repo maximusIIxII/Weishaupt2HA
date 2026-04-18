@@ -136,7 +136,9 @@
       "wcm_error": { "name": "Error" },
       "ebusd_flame_active": { "name": "Flame" },
       "ebusd_pump_active": { "name": "Pump" },
-      "ebusd_error": { "name": "Error" }
+      "ebusd_error": { "name": "Error" },
+      "ebusd_gas_valve1_active": { "name": "Gas Valve 1" },
+      "ebusd_gas_valve2_active": { "name": "Gas Valve 2" }
     },
     "number": {
       "hz_comfort_temp": { "name": "Comfort Temperature" },
