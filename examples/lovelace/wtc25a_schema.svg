@@ -1,0 +1,350 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1400 820" preserveAspectRatio="xMidYMid meet" font-family="'Inter', 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif">
+  <!--
+    WTC 25-A Gas-Brennwertkessel — modernes Dashboard-Schema
+    Weishaupt2HA Integration · picture-elements Lovelace
+    Design: soft neumorphism, pill-shaped metric chips, animated flame glow
+  -->
+
+  <defs>
+    <!-- Soft background gradient -->
+    <linearGradient id="bgGrad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#f8fafc"/>
+      <stop offset="1" stop-color="#e2e8f0"/>
+    </linearGradient>
+
+    <!-- Card surface gradient -->
+    <linearGradient id="cardGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ffffff"/>
+      <stop offset="1" stop-color="#f1f5f9"/>
+    </linearGradient>
+
+    <!-- Boiler body: brushed metal -->
+    <linearGradient id="boilerGrad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#1e293b"/>
+      <stop offset="0.5" stop-color="#334155"/>
+      <stop offset="1" stop-color="#1e293b"/>
+    </linearGradient>
+
+    <!-- Flow pipe gradient (warm red) -->
+    <linearGradient id="flowGrad" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#ef4444"/>
+      <stop offset="1" stop-color="#f97316"/>
+    </linearGradient>
+
+    <!-- Return pipe gradient (cool blue) -->
+    <linearGradient id="returnGrad" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#3b82f6"/>
+      <stop offset="1" stop-color="#60a5fa"/>
+    </linearGradient>
+
+    <!-- Hot water gradient -->
+    <linearGradient id="waterGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#dbeafe"/>
+      <stop offset="1" stop-color="#bfdbfe"/>
+    </linearGradient>
+
+    <!-- Radial glow for flame -->
+    <radialGradient id="flameCore" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0" stop-color="#fff7ed" stop-opacity="1"/>
+      <stop offset="0.4" stop-color="#fb923c" stop-opacity="0.9"/>
+      <stop offset="1" stop-color="#ea580c" stop-opacity="0"/>
+    </radialGradient>
+
+    <radialGradient id="flameAura" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0" stop-color="#fde047" stop-opacity="0.5"/>
+      <stop offset="1" stop-color="#f59e0b" stop-opacity="0"/>
+    </radialGradient>
+
+    <!-- Soft drop shadow filter -->
+    <filter id="softShadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur in="SourceAlpha" stdDeviation="6"/>
+      <feOffset dx="0" dy="4"/>
+      <feComponentTransfer>
+        <feFuncA type="linear" slope="0.12"/>
+      </feComponentTransfer>
+      <feMerge>
+        <feMergeNode/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+
+    <!-- Inset shadow for pressed surfaces -->
+    <filter id="innerShadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur in="SourceAlpha" stdDeviation="2"/>
+      <feOffset dx="0" dy="1"/>
+      <feComposite in2="SourceAlpha" operator="arithmetic" k2="-1" k3="1"/>
+      <feColorMatrix values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 0.2 0"/>
+      <feComposite in2="SourceGraphic" operator="over"/>
+    </filter>
+
+    <!-- Glow for active elements -->
+    <filter id="glow" x="-40%" y="-40%" width="180%" height="180%">
+      <feGaussianBlur stdDeviation="4"/>
+      <feMerge>
+        <feMergeNode/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+
+    <!-- Animated flow dashes -->
+    <pattern id="flowDash" width="20" height="10" patternUnits="userSpaceOnUse">
+      <rect width="14" height="10" fill="currentColor" opacity="0.9"/>
+    </pattern>
+
+    <!-- Arrowheads (subtle, rounded) -->
+    <marker id="arrowFlow" viewBox="0 0 12 12" refX="10" refY="6" markerWidth="8" markerHeight="8" orient="auto">
+      <path d="M 2 2 Q 10 6 2 10" stroke="#ef4444" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+    </marker>
+    <marker id="arrowReturn" viewBox="0 0 12 12" refX="10" refY="6" markerWidth="8" markerHeight="8" orient="auto">
+      <path d="M 2 2 Q 10 6 2 10" stroke="#3b82f6" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+    </marker>
+  </defs>
+
+  <!-- ====== BACKGROUND ====== -->
+  <rect width="1400" height="820" fill="url(#bgGrad)"/>
+
+  <!-- Subtle decorative grid -->
+  <g opacity="0.3" stroke="#cbd5e1" stroke-width="0.5">
+    <line x1="0" y1="200" x2="1400" y2="200"/>
+    <line x1="0" y1="600" x2="1400" y2="600"/>
+  </g>
+
+  <!-- ====== TITLE BAR ====== -->
+  <g>
+    <text x="60" y="60" font-size="26" font-weight="700" fill="#0f172a" letter-spacing="-0.5">Weishaupt WTC 25-A</text>
+    <text x="60" y="84" font-size="14" font-weight="400" fill="#64748b" letter-spacing="0.3">Gas-Brennwertkessel · Live-Status</text>
+  </g>
+
+  <!-- Top-right status badges -->
+  <g>
+    <rect x="1080" y="40" width="130" height="54" rx="27" fill="url(#cardGrad)" filter="url(#softShadow)"/>
+    <text x="1145" y="62" text-anchor="middle" font-size="10" font-weight="500" fill="#64748b" letter-spacing="0.8">SAISON</text>
+    <text x="1145" y="83" text-anchor="middle" font-size="15" font-weight="600" fill="#0f172a" id="tag-season"></text>
+
+    <rect x="1230" y="40" width="130" height="54" rx="27" fill="url(#cardGrad)" filter="url(#softShadow)"/>
+    <text x="1295" y="62" text-anchor="middle" font-size="10" font-weight="500" fill="#64748b" letter-spacing="0.8">MODUS</text>
+    <text x="1295" y="83" text-anchor="middle" font-size="15" font-weight="600" fill="#0f172a"></text>
+  </g>
+
+  <!-- ====== LEFT COLUMN: OUTDOOR + STATUS ====== -->
+
+  <!-- Outdoor temp hero card -->
+  <g>
+    <rect x="60" y="140" width="260" height="180" rx="20" fill="url(#cardGrad)" filter="url(#softShadow)"/>
+    <text x="88" y="175" font-size="12" font-weight="500" fill="#94a3b8" letter-spacing="1">AUSSENTEMPERATUR</text>
+    <text x="88" y="254" font-size="72" font-weight="300" fill="#0f172a" letter-spacing="-3"></text>
+    <text x="88" y="294" font-size="13" font-weight="500" fill="#64748b">Trend: <tspan fill="#475569" font-weight="600">•</tspan></text>
+
+    <!-- Icon weather -->
+    <g transform="translate(238, 170)" opacity="0.7">
+      <circle cx="20" cy="20" r="14" fill="#fbbf24"/>
+      <path d="M 0 40 Q 10 30 20 40 Q 30 30 40 40 Q 35 50 20 48 Q 5 50 0 40 Z" fill="#cbd5e1"/>
+    </g>
+  </g>
+
+  <!-- Status list -->
+  <g>
+    <rect x="60" y="340" width="260" height="300" rx="20" fill="url(#cardGrad)" filter="url(#softShadow)"/>
+    <text x="88" y="374" font-size="12" font-weight="500" fill="#94a3b8" letter-spacing="1">STATUS</text>
+
+    <g font-size="12" fill="#64748b">
+      <text x="88" y="414">Betriebsphase</text>
+      <text x="88" y="464">Heizkreis</text>
+      <text x="88" y="514">Flamme</text>
+      <text x="88" y="564">Stoerung</text>
+    </g>
+
+    <g font-size="15" font-weight="600" fill="#0f172a">
+      <text x="88" y="434"></text>
+      <text x="88" y="484"></text>
+      <text x="88" y="534"></text>
+      <text x="88" y="584"></text>
+    </g>
+
+    <!-- separators -->
+    <g stroke="#e2e8f0" stroke-width="1">
+      <line x1="88" y1="444" x2="292" y2="444"/>
+      <line x1="88" y1="494" x2="292" y2="494"/>
+      <line x1="88" y1="544" x2="292" y2="544"/>
+    </g>
+  </g>
+
+  <!-- Exhaust card -->
+  <g>
+    <rect x="60" y="660" width="260" height="110" rx="20" fill="url(#cardGrad)" filter="url(#softShadow)"/>
+    <text x="88" y="694" font-size="12" font-weight="500" fill="#94a3b8" letter-spacing="1">ABGAS</text>
+    <text x="88" y="742" font-size="30" font-weight="300" fill="#0f172a"></text>
+    <!-- exhaust icon -->
+    <g transform="translate(244, 690)" stroke="#94a3b8" stroke-width="2" fill="none" stroke-linecap="round" opacity="0.7">
+      <path d="M 14 40 Q 4 30 14 20 Q 24 10 14 0"/>
+      <path d="M 24 40 Q 14 30 24 20 Q 34 10 24 0"/>
+    </g>
+  </g>
+
+  <!-- ====== CENTER: BOILER ====== -->
+  <g>
+    <!-- Boiler chassis with rounded body -->
+    <rect x="430" y="260" width="380" height="380" rx="32" fill="url(#boilerGrad)" filter="url(#softShadow)"/>
+
+    <!-- Boiler brand label -->
+    <text x="620" y="296" text-anchor="middle" font-size="11" font-weight="500" fill="#64748b" letter-spacing="2">WEISHAUPT · WTC 25-A</text>
+
+    <!-- Inner compartment with heat exchanger -->
+    <rect x="470" y="320" width="300" height="160" rx="18" fill="#0f172a" filter="url(#innerShadow)"/>
+
+    <!-- Heat exchanger spiral (modern: concentric arcs) -->
+    <g stroke="#64748b" stroke-width="1.5" fill="none" opacity="0.55" stroke-linecap="round">
+      <path d="M 490 360 Q 620 340 750 360"/>
+      <path d="M 490 390 Q 620 370 750 390"/>
+      <path d="M 490 420 Q 620 400 750 420"/>
+      <path d="M 490 450 Q 620 430 750 450"/>
+    </g>
+
+    <!-- Flame chamber -->
+    <g>
+      <rect x="540" y="500" width="160" height="90" rx="14" fill="#0f172a"/>
+      <text x="620" y="520" text-anchor="middle" font-size="10" font-weight="500" fill="#475569" letter-spacing="1.5">BRENNER</text>
+
+      <!-- Flame: layered radial gradients + animated flicker -->
+      <g transform="translate(620, 560)">
+        <!-- outer aura (pulsates) -->
+        <ellipse cx="0" cy="0" rx="60" ry="50" fill="url(#flameAura)" filter="url(#glow)">
+          <animate attributeName="rx" values="58;62;58" dur="2.4s" repeatCount="indefinite"/>
+          <animate attributeName="ry" values="48;52;48" dur="2.4s" repeatCount="indefinite"/>
+        </ellipse>
+        <!-- core flame -->
+        <ellipse cx="0" cy="0" rx="40" ry="34" fill="url(#flameCore)">
+          <animate attributeName="opacity" values="0.85;1;0.85" dur="1.2s" repeatCount="indefinite"/>
+        </ellipse>
+        <!-- flame tongues -->
+        <path d="M -18 18 Q -12 -24 -4 8 Q 0 -32 6 6 Q 14 -18 18 18 Q 10 6 0 10 Q -10 6 -18 18 Z" fill="#fb923c" opacity="0.85">
+          <animate attributeName="opacity" values="0.7;0.95;0.7" dur="1.8s" repeatCount="indefinite"/>
+        </path>
+      </g>
+    </g>
+
+    <!-- Modulation % indicator (inside boiler, top) -->
+    <g>
+      <rect x="540" y="610" width="160" height="14" rx="7" fill="#0f172a"/>
+      <rect x="540" y="610" width="100" height="14" rx="7" fill="url(#flowGrad)" opacity="0.8" id="modBar"/>
+      <text x="620" y="605" text-anchor="middle" font-size="10" font-weight="500" fill="#94a3b8" letter-spacing="1">MODULATION</text>
+    </g>
+  </g>
+
+  <!-- ====== GAS VALVES (bottom, modern pill chips) ====== -->
+  <g>
+    <rect x="450" y="700" width="160" height="54" rx="27" fill="url(#cardGrad)" filter="url(#softShadow)"/>
+    <circle cx="478" cy="727" r="8" fill="#94a3b8" id="gas1-led"/>
+    <text x="498" y="724" font-size="11" font-weight="500" fill="#64748b" letter-spacing="1">GAS 1</text>
+    <text x="498" y="742" font-size="13" font-weight="600" fill="#0f172a"></text>
+
+    <rect x="630" y="700" width="160" height="54" rx="27" fill="url(#cardGrad)" filter="url(#softShadow)"/>
+    <circle cx="658" cy="727" r="8" fill="#94a3b8" id="gas2-led"/>
+    <text x="678" y="724" font-size="11" font-weight="500" fill="#64748b" letter-spacing="1">GAS 2</text>
+    <text x="678" y="742" font-size="13" font-weight="600" fill="#0f172a"></text>
+  </g>
+
+  <!-- ====== PIPES: FLOW (out) + RETURN (in) ====== -->
+
+  <!-- Flow pipe: boiler → hot water + heating circuit -->
+  <g>
+    <path d="M 810 380 L 860 380 L 860 250 L 1040 250" stroke="url(#flowGrad)" stroke-width="10" stroke-linecap="round" fill="none" filter="url(#glow)">
+      <animate attributeName="stroke-dashoffset" from="20" to="0" dur="1s" repeatCount="indefinite"/>
+      <animate attributeName="stroke-dasharray" values="0 200;200 0" dur="2s" repeatCount="indefinite"/>
+    </path>
+    <!-- Flow label (on pipe) -->
+    <g transform="translate(900, 220)">
+      <rect x="-60" y="-22" width="120" height="32" rx="16" fill="#fef2f2" stroke="#fca5a5" stroke-width="1"/>
+      <text x="0" y="-2" text-anchor="middle" font-size="10" font-weight="500" fill="#b91c1c" letter-spacing="1">VORLAUF</text>
+    </g>
+  </g>
+
+  <!-- Return pipe: radiator + storage → boiler -->
+  <g>
+    <path d="M 1040 450 L 860 450 L 860 580 L 810 580" stroke="url(#returnGrad)" stroke-width="10" stroke-linecap="round" fill="none" opacity="0.8">
+      <animate attributeName="stroke-dashoffset" from="0" to="20" dur="1.5s" repeatCount="indefinite"/>
+      <animate attributeName="stroke-dasharray" values="0 200;200 0" dur="3s" repeatCount="indefinite"/>
+    </path>
+    <!-- Return label -->
+    <g transform="translate(900, 420)">
+      <rect x="-60" y="-14" width="120" height="32" rx="16" fill="#eff6ff" stroke="#93c5fd" stroke-width="1"/>
+      <text x="0" y="6" text-anchor="middle" font-size="10" font-weight="500" fill="#1d4ed8" letter-spacing="1">RUECKLAUF</text>
+    </g>
+  </g>
+
+  <!-- ====== PUMP (circular, above boiler right) ====== -->
+  <g transform="translate(860, 170)">
+    <circle cx="0" cy="0" r="36" fill="url(#cardGrad)" filter="url(#softShadow)"/>
+    <!-- impeller -->
+    <g fill="#3b82f6" opacity="0.8">
+      <path d="M 0 -16 Q 10 -10 0 -4 Q -10 -10 0 -16 Z">
+        <animateTransform attributeName="transform" type="rotate" from="0" to="360" dur="3s" repeatCount="indefinite"/>
+      </path>
+      <path d="M 14 4 Q 8 14 2 8 Q 8 -2 14 4 Z">
+        <animateTransform attributeName="transform" type="rotate" from="120" to="480" dur="3s" repeatCount="indefinite"/>
+      </path>
+      <path d="M -14 4 Q -2 -2 -8 14 Q -14 10 -14 4 Z">
+        <animateTransform attributeName="transform" type="rotate" from="240" to="600" dur="3s" repeatCount="indefinite"/>
+      </path>
+    </g>
+  </g>
+  <g>
+    <rect x="820" y="100" width="80" height="32" rx="16" fill="url(#cardGrad)" filter="url(#softShadow)"/>
+    <text x="860" y="120" text-anchor="middle" font-size="11" font-weight="500" fill="#475569" letter-spacing="0.5">Pumpe</text>
+  </g>
+
+  <!-- ====== FLOW TEMP HERO CARD (top right of boiler) ====== -->
+  <g>
+    <rect x="980" y="150" width="200" height="130" rx="20" fill="url(#cardGrad)" filter="url(#softShadow)"/>
+    <text x="1000" y="180" font-size="11" font-weight="500" fill="#ef4444" letter-spacing="1.5">VORLAUF</text>
+    <text x="1000" y="234" font-size="44" font-weight="300" fill="#0f172a" letter-spacing="-2"></text>
+    <text x="1000" y="262" font-size="12" font-weight="500" fill="#94a3b8">Soll: <tspan font-weight="600" fill="#64748b">•</tspan></text>
+  </g>
+
+  <!-- ====== HOT WATER STORAGE ====== -->
+  <g>
+    <!-- outer tank -->
+    <rect x="980" y="450" width="200" height="240" rx="22" fill="url(#cardGrad)" filter="url(#softShadow)"/>
+
+    <!-- water level visual -->
+    <g clip-path="inset(0 0 0 0 round 22px)">
+      <rect x="980" y="490" width="200" height="200" fill="url(#waterGrad)" opacity="0.55"/>
+      <!-- subtle waves -->
+      <g stroke="#3b82f6" stroke-width="1.2" fill="none" opacity="0.3">
+        <path d="M 980 520 Q 1020 515 1080 520 T 1180 520"/>
+        <path d="M 980 560 Q 1020 555 1080 560 T 1180 560"/>
+      </g>
+    </g>
+
+    <text x="1000" y="480" font-size="11" font-weight="500" fill="#1d4ed8" letter-spacing="1.5">WARMWASSER</text>
+    <text x="1000" y="620" font-size="40" font-weight="300" fill="#0f172a" letter-spacing="-2"></text>
+    <text x="1000" y="650" font-size="12" font-weight="500" fill="#94a3b8">Soll: <tspan font-weight="600" fill="#64748b">•</tspan></text>
+  </g>
+
+  <!-- ====== HEATING CIRCUIT CARD (far right) ====== -->
+  <g>
+    <rect x="1210" y="150" width="150" height="240" rx="20" fill="url(#cardGrad)" filter="url(#softShadow)"/>
+    <text x="1230" y="180" font-size="11" font-weight="500" fill="#64748b" letter-spacing="1.5">HEIZKREIS 1</text>
+
+    <!-- stylized radiator -->
+    <g transform="translate(1235, 210)">
+      <rect x="0" y="0" width="100" height="100" rx="10" fill="#f1f5f9" stroke="#cbd5e1" stroke-width="1.5"/>
+      <g stroke="#94a3b8" stroke-width="2" stroke-linecap="round">
+        <line x1="18" y1="12" x2="18" y2="88"/>
+        <line x1="35" y1="12" x2="35" y2="88"/>
+        <line x1="52" y1="12" x2="52" y2="88"/>
+        <line x1="69" y1="12" x2="69" y2="88"/>
+        <line x1="86" y1="12" x2="86" y2="88"/>
+      </g>
+      <!-- subtle warmth glow -->
+      <rect x="2" y="2" width="96" height="20" rx="8" fill="#fecaca" opacity="0.3"/>
+    </g>
+
+    <text x="1285" y="350" text-anchor="middle" font-size="22" font-weight="400" fill="#0f172a"></text>
+    <text x="1285" y="372" text-anchor="middle" font-size="10" font-weight="500" fill="#94a3b8">Soll</text>
+  </g>
+
+  <!-- ====== FOOTER ====== -->
+  <text x="700" y="800" text-anchor="middle" font-size="10" font-weight="400" fill="#94a3b8" letter-spacing="0.5">WEISHAUPT2HA · HOME ASSISTANT INTEGRATION</text>
+</svg>

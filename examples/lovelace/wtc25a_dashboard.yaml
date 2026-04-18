@@ -1,0 +1,237 @@
+# WTC 25-A — Lovelace picture-elements card (modern redesign)
+#
+# Setup:
+# 1. Kopiere examples/lovelace/wtc25a_schema.svg nach <HA-config>/www/wtc25a_schema.svg
+# 2. Fuege diese Card-Definition einem Dashboard hinzu
+# 3. Entity-IDs unten ggf. an die Namen in deinem HA anpassen
+#
+# Referenz-Hardware: Weishaupt WTC 25-A (Gas-Brennwertkessel) via ebusd
+# Integration: Weishaupt2HA (DOMAIN: weishaupt2ha)
+# SVG-ViewBox: 1400 x 820
+
+type: picture-elements
+image: /local/wtc25a_schema.svg
+
+elements:
+  # ---- LEFT: OUTDOOR TEMP HERO ----
+  - type: state-label
+    entity: sensor.ebusd_outdoor_temp
+    style:
+      top: 30%
+      left: 14%
+      color: "#0f172a"
+      font-size: 56px
+      font-weight: "300"
+      letter-spacing: "-2px"
+      transform: "translate(-50%, -50%)"
+
+  - type: state-label
+    entity: sensor.ebusd_trend_temp
+    prefix: "Trend "
+    style:
+      top: 36%
+      left: 18%
+      color: "#475569"
+      font-size: 13px
+      font-weight: "600"
+      transform: "translate(-50%, -50%)"
+
+  # ---- LEFT: STATUS STACK ----
+  - type: state-label
+    entity: sensor.ebusd_operating_phase
+    style:
+      top: 53%
+      left: 14%
+      color: "#0f172a"
+      font-size: 14px
+      font-weight: "600"
+      max-width: "200px"
+      white-space: nowrap
+      overflow: hidden
+      text-overflow: ellipsis
+      transform: "translate(-50%, -50%)"
+
+  - type: state-label
+    entity: sensor.ebusd_hc_status
+    style:
+      top: 59%
+      left: 14%
+      color: "#0f172a"
+      font-size: 14px
+      font-weight: "600"
+      transform: "translate(-50%, -50%)"
+
+  - type: state-label
+    entity: binary_sensor.ebusd_flame_active
+    style:
+      top: 65%
+      left: 14%
+      color: "#0f172a"
+      font-size: 14px
+      font-weight: "600"
+      transform: "translate(-50%, -50%)"
+
+  - type: state-label
+    entity: binary_sensor.ebusd_active_fault
+    style:
+      top: 71%
+      left: 14%
+      color: "#0f172a"
+      font-size: 14px
+      font-weight: "600"
+      transform: "translate(-50%, -50%)"
+
+  # ---- LEFT-BOTTOM: EXHAUST ----
+  - type: state-label
+    entity: sensor.ebusd_exhaust_temp
+    style:
+      top: 90.5%
+      left: 14%
+      color: "#0f172a"
+      font-size: 26px
+      font-weight: "300"
+      transform: "translate(-50%, -50%)"
+
+  # ---- TOP-RIGHT: SEASON + MODE BADGES ----
+  - type: state-label
+    entity: sensor.ebusd_season
+    style:
+      top: 10.1%
+      left: 82%
+      color: "#0f172a"
+      font-size: 14px
+      font-weight: "600"
+      transform: "translate(-50%, -50%)"
+
+  - type: state-label
+    entity: sensor.ebusd_operating_mode
+    style:
+      top: 10.1%
+      left: 92.5%
+      color: "#0f172a"
+      font-size: 14px
+      font-weight: "600"
+      transform: "translate(-50%, -50%)"
+
+  # ---- CENTER-BOTTOM: MODULATION % over progress bar ----
+  - type: state-label
+    entity: sensor.ebusd_load_position
+    style:
+      top: 72%
+      left: 44%
+      color: "#ffffff"
+      font-size: 12px
+      font-weight: "700"
+      letter-spacing: "0.5px"
+      transform: "translate(-50%, -50%)"
+      text-shadow: "0 1px 3px rgba(0,0,0,0.6)"
+
+  # ---- GAS VALVES ----
+  - type: state-icon
+    entity: binary_sensor.ebusd_gas_valve1_active
+    icon: mdi:valve
+    state_color: true
+    style:
+      top: 88.5%
+      left: 34.1%
+      "--mdc-icon-size": "14px"
+      transform: "translate(-50%, -50%)"
+
+  - type: state-label
+    entity: binary_sensor.ebusd_gas_valve1_active
+    style:
+      top: 90.5%
+      left: 39.5%
+      color: "#0f172a"
+      font-size: 12px
+      font-weight: "600"
+      transform: "translate(-50%, -50%)"
+
+  - type: state-icon
+    entity: binary_sensor.ebusd_gas_valve2_active
+    icon: mdi:valve
+    state_color: true
+    style:
+      top: 88.5%
+      left: 47%
+      "--mdc-icon-size": "14px"
+      transform: "translate(-50%, -50%)"
+
+  - type: state-label
+    entity: binary_sensor.ebusd_gas_valve2_active
+    style:
+      top: 90.5%
+      left: 52.5%
+      color: "#0f172a"
+      font-size: 12px
+      font-weight: "600"
+      transform: "translate(-50%, -50%)"
+
+  # ---- PUMP state indicator (overlay on circle) ----
+  - type: state-icon
+    entity: binary_sensor.ebusd_pump_active
+    icon: mdi:pump
+    state_color: true
+    style:
+      top: 14.5%
+      left: 61.4%
+      "--mdc-icon-size": "14px"
+      transform: "translate(-50%, -50%)"
+      opacity: "0.9"
+
+  # ---- FLOW TEMP HERO (top-right of boiler) ----
+  - type: state-label
+    entity: sensor.ebusd_flow_temp
+    style:
+      top: 28.5%
+      left: 77.5%
+      color: "#0f172a"
+      font-size: 36px
+      font-weight: "300"
+      letter-spacing: "-1.5px"
+      transform: "translate(-50%, -50%)"
+
+  - type: state-label
+    entity: sensor.ebusd_flow_set_temp
+    prefix: "Soll "
+    style:
+      top: 32%
+      left: 80%
+      color: "#64748b"
+      font-size: 12px
+      font-weight: "600"
+      transform: "translate(-50%, -50%)"
+
+  # ---- HOT WATER STORAGE ----
+  - type: state-label
+    entity: sensor.ebusd_hot_water_temp
+    style:
+      top: 75.5%
+      left: 77.5%
+      color: "#0f172a"
+      font-size: 34px
+      font-weight: "300"
+      letter-spacing: "-1.5px"
+      transform: "translate(-50%, -50%)"
+
+  - type: state-label
+    entity: sensor.ebusd_dhw_set_temp
+    prefix: "Soll "
+    style:
+      top: 79.3%
+      left: 80%
+      color: "#64748b"
+      font-size: 12px
+      font-weight: "600"
+      transform: "translate(-50%, -50%)"
+
+  # ---- HEATING CIRCUIT SET (far right) ----
+  - type: state-label
+    entity: sensor.ebusd_flow_set_temp
+    style:
+      top: 42.7%
+      left: 91.8%
+      color: "#0f172a"
+      font-size: 20px
+      font-weight: "400"
+      transform: "translate(-50%, -50%)"
