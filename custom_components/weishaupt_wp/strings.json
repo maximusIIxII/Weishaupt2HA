@@ -120,7 +120,13 @@
       "ebusd_load_position": { "name": "Burner Modulation" },
       "ebusd_operating_phase": { "name": "Operating Phase" },
       "ebusd_operating_mode": { "name": "Operating Mode" },
-      "ebusd_season": { "name": "Season" },
+      "ebusd_season": {
+        "name": "Season",
+        "state": {
+          "summer": "Summer",
+          "winter": "Winter"
+        }
+      },
       "ebusd_hc_status": { "name": "Heating Circuit Status" }
     },
     "binary_sensor": {

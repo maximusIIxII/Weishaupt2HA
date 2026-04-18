@@ -2,8 +2,11 @@
 
 from __future__ import annotations
 
+import logging
 from collections.abc import Callable
 from dataclasses import dataclass
+
+_LOGGER = logging.getLogger(__name__)
 
 from homeassistant.components.sensor import (
     SensorDeviceClass,
@@ -519,6 +522,15 @@ EBUSD_TEMPERATURE_SENSORS: tuple[EbusdSensorDescription, ...] = (
     ),
 )
 
+# Known ebusd season values seen on a Weishaupt WTC 25-A. Extend this map
+# as new raw values surface in the logs (see _normalize_season warning).
+EBUSD_SEASON_MAP: dict[str, str] = {
+    "Summer": "summer",
+    "Winter": "winter",
+}
+EBUSD_SEASON_OPTIONS: list[str] = sorted(set(EBUSD_SEASON_MAP.values()))
+
+
 EBUSD_OPERATIONAL_SENSORS: tuple[EbusdSensorDescription, ...] = (
     EbusdSensorDescription(
         key="ebusd_load_position",
@@ -544,7 +556,9 @@ EBUSD_OPERATIONAL_SENSORS: tuple[EbusdSensorDescription, ...] = (
         key="ebusd_season",
         translation_key="ebusd_season",
         icon="mdi:weather-partly-cloudy",
-        value_fn=lambda d: d.sensors.season,
+        device_class=SensorDeviceClass.ENUM,
+        options=EBUSD_SEASON_OPTIONS,
+        value_fn=lambda d: _normalize_season(d.sensors.season),
     ),
     EbusdSensorDescription(
         key="ebusd_hc_status",
@@ -567,6 +581,28 @@ def _operating_phase_name(phase: int | None) -> str | None:
         2: "Warmwasser",
     }
     return phases.get(phase, f"Unbekannt ({phase})")
+
+
+_unknown_season_seen: set[str] = set()
+
+
+def _normalize_season(raw: str | None) -> str | None:
+    """Map the ebusd season string to a lower-case HA enum option.
+
+    Unknown values return None (HA shows 'unknown') and emit a single
+    warning per distinct value — so we learn which strings the WTC
+    actually emits without flooding the log.
+    """
+    if raw is None:
+        return None
+    mapped = EBUSD_SEASON_MAP.get(raw)
+    if mapped is None and raw not in _unknown_season_seen:
+        _unknown_season_seen.add(raw)
+        _LOGGER.warning(
+            "Unknown ebusd season value '%s' — please report so we can map it",
+            raw,
+        )
+    return mapped
 
 
 # ══════════════════════════════════════════════════════════

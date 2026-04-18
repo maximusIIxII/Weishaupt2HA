@@ -120,7 +120,13 @@
       "ebusd_load_position": { "name": "Brennermodulation" },
       "ebusd_operating_phase": { "name": "Betriebsphase" },
       "ebusd_operating_mode": { "name": "Betriebsmodus" },
-      "ebusd_season": { "name": "Jahreszeit" },
+      "ebusd_season": {
+        "name": "Jahreszeit",
+        "state": {
+          "summer": "Sommer",
+          "winter": "Winter"
+        }
+      },
       "ebusd_hc_status": { "name": "Heizkreis Status" }
     },
     "binary_sensor": {
