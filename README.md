@@ -1,88 +1,66 @@
-# Weishaupt Heat Pump — Home Assistant Integration
+# Weishaupt2HA — Home Assistant Integration
 
-Custom Home Assistant integration for **Weishaupt heat pumps** via the **WCM-COM Modbus TCP** interface.
+Home Assistant Custom Integration fuer **Weishaupt-Heizungen**: Waermepumpen via Modbus TCP sowie Gas-Brennwertkessel via ebusd.
+
+## Supported Hardware
+
+| Series | Transport | Notes |
+|--------|-----------|-------|
+| **WBB** (heat pump) | Modbus TCP | Requires a working Modbus TCP gateway (WCM-COM or equivalent) on port 502 |
+| **WTC** (gas condensing boiler) | ebusd | Requires an eBUS adapter (e.g. Shield C6) and a running [ebusd](https://github.com/john30/ebusd) daemon |
+
+Two transport stacks, one integration. The config flow asks which one you have and only wires up the matching platforms.
+
+## Architecture
+
+The integration is a thin Home Assistant layer on top of the [`weishaupt-modbus`](https://pypi.org/project/weishaupt-modbus/) Python library. The library handles the protocol (Modbus TCP via `pymodbus`, ebusd via plain TCP) and data modelling; the integration maps library data onto HA entities.
 
 ## Features
 
-- **Climate entity** — Control heating circuit (mode, target temperature)
-- **Water heater entity** — Control hot water (temperature, boost)
-- **30+ sensors** — Temperatures, energy statistics, COP, operating hours
-- **Binary sensors** — Compressor, defrost, error/warning status
-- **Number entities** — Adjust setpoints, heating curve, summer/winter switch
-- **Select entities** — System operation mode, heating mode, party/pause
-- **Switch entities** — Quiet mode, hot water boost
-- **Button entities** — One-time hot water boost trigger
-- **Diagnostics** — Export debug data from the integration settings
-
-## Requirements
-
-- **Weishaupt heat pump** with **WCM-COM** communication module
-- WCM-COM connected to your local network (Modbus TCP, default port 502)
-- Home Assistant 2025.1 or newer
+- **Climate** — heating circuit control (HVAC mode, target temperature) [Modbus only]
+- **Water heater** — hot water target temperature and boost [Modbus only]
+- **Sensors** — 30+ temperatures, energies, COP, operating hours, operating phase, seasons
+- **Binary sensors** — compressor, defrost, flame, pump, gas valves, active fault
+- **Number** — adjustable setpoints, including v0.6 write-support for seven ebusd user parameters:
+  `HcSummerOverTemp`, `HcSummerUnderTemp`, `HcDayTemp`, `HcNightTemp`, `HcFrostTemp`, `HcCurve`, `DhwSetTemp`, `DhwMinTemp`
+- **Select** — system operation mode, heating mode, party/pause [Modbus only]
+- **Switch** — quiet mode, hot water boost [Modbus only]
+- **Button** — hot water one-time boost [Modbus only]
+- **Diagnostics** — downloadable debug bundle from the integration settings page
 
 ## Installation
 
 ### HACS (recommended)
 
 1. Open HACS in Home Assistant
-2. Go to **Integrations** → **⋮** → **Custom repositories**
-3. Add this repository URL and select **Integration**
-4. Search for "Weishaupt Heat Pump" and install
-5. Restart Home Assistant
+2. **Integrations** → **⋮** → **Custom repositories**
+3. Add `https://github.com/maximusIIxII/Weishaupt2HA`, category **Integration**
+4. Install **Weishaupt2HA**, restart Home Assistant
 
 ### Manual
 
-1. Copy the `custom_components/weishaupt_wp` folder to your HA `custom_components/` directory
+1. Copy `custom_components/weishaupt2ha/` into your HA `config/custom_components/` directory
 2. Restart Home Assistant
 
 ## Configuration
 
-1. Go to **Settings** → **Devices & Services** → **Add Integration**
-2. Search for **Weishaupt Heat Pump**
-3. Enter the IP address of your WCM-COM module
-4. Adjust port (default: 502) and slave ID (default: 1) if needed
+1. **Settings** → **Devices & Services** → **Add Integration**
+2. Search for **Weishaupt2HA**
+3. Pick the connection type:
+   - **Modbus TCP** — enter gateway IP, port (default `502`), slave ID (default `1`)
+   - **ebusd** — enter daemon IP, port (default `8888`), and an optional circuit prefix
+4. Polling interval is adjustable under Options (default 30 s, range 10–300 s)
 
-### Options
+### ebusd setup
 
-After setup, you can adjust:
-- **Polling interval** (default: 30 seconds, range: 10–300s)
+ebusd needs the [J0EK3R Weishaupt config CSVs](https://github.com/J0EK3R/ebusd-configuration-weishaupt) loaded. A working Docker Compose example plus a walkthrough for QNAP Container Station lives under [`examples/ebusd/`](examples/ebusd/).
 
-## Supported Entities
-
-| Platform | Count | Examples |
-|----------|-------|---------|
-| Climate | 1 | Heating circuit control |
-| Water heater | 1 | Hot water control |
-| Sensor | 25+ | Temperatures, energy, humidity, operating hours |
-| Binary sensor | 6 | Compressor, defrost, errors, e-heaters |
-| Number | 9 | Comfort/normal/reduced temp, heating curve |
-| Select | 3 | System mode, heating mode, party/pause |
-| Switch | 2 | Quiet mode, hot water boost |
-| Button | 1 | Hot water one-time boost |
-
-## Architecture
-
-This integration follows Home Assistant best practices (2025):
-
-- **Config Flow** — UI-based setup with connection validation
-- **DataUpdateCoordinator** — Centralized, efficient data fetching
-- **CoordinatorEntity** — Base entity with automatic availability
-- **runtime_data** — Modern data storage pattern
-- **Separate library** — `weishaupt-modbus` PyPI package for Modbus communication
-- **Translations** — English and German
-
-## Communication
-
-The integration communicates locally via **Modbus TCP** through the Weishaupt WCM-COM module. No cloud connection required.
-
-```
-Home Assistant  ←→  WCM-COM Module (Port 502)  ←→  Weishaupt Heat Pump
-```
+**Important:** run ebusd **without** the `--scanconfig` flag. The J0EK3R layout is flat (no vendor subfolder); with `--scanconfig`, ebusd fails the scan match, skips the `!include` directives, and `find -w` returns nothing — which silently breaks every v0.6 write target. The example compose file in this repo already has the flag removed.
 
 ## Credits
 
-- Register map based on research from [OStrama/weishaupt_modbus](https://github.com/OStrama/weishaupt_modbus)
-- Architecture patterns from Wolf ISM7, myVaillant, and NIBE integrations
+- [J0EK3R/ebusd-configuration-weishaupt](https://github.com/J0EK3R/ebusd-configuration-weishaupt) — the ebusd CSVs that describe the WTC message layout
+- [OStrama/weishaupt_modbus](https://github.com/OStrama/weishaupt_modbus) — the Modbus register research this integration builds on
 
 ## License
 

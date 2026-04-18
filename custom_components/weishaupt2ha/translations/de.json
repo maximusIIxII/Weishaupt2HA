@@ -2,7 +2,7 @@
   "config": {
     "step": {
       "user": {
-        "title": "Weishaupt Verbindungstyp",
+        "title": "Weishaupt2HA Verbindungstyp",
         "description": "Wählen Sie die Verbindungsart Ihrer Weishaupt Heizung.",
         "data": {
           "connection_type": "Verbindungstyp"
@@ -38,7 +38,7 @@
   "options": {
     "step": {
       "init": {
-        "title": "Weishaupt Optionen",
+        "title": "Weishaupt2HA Optionen",
         "data": {
           "scan_interval": "Abfrageintervall (Sekunden)"
         }

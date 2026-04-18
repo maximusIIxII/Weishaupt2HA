@@ -2,7 +2,7 @@
   "config": {
     "step": {
       "user": {
-        "title": "Weishaupt Connection Type",
+        "title": "Weishaupt2HA Connection Type",
         "description": "Choose how your Weishaupt heating system connects.",
         "data": {
           "connection_type": "Connection type"
@@ -38,7 +38,7 @@
   "options": {
     "step": {
       "init": {
-        "title": "Weishaupt Options",
+        "title": "Weishaupt2HA Options",
         "data": {
           "scan_interval": "Polling interval (seconds)"
         }

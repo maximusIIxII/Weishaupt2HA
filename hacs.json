@@ -1,5 +1,5 @@
 {
-  "name": "Weishaupt Heat Pump",
+  "name": "Weishaupt2HA",
   "homeassistant": "2025.1.0",
   "render_readme": true
 }

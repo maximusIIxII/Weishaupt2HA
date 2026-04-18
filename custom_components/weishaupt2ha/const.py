@@ -1,9 +1,9 @@
-"""Constants for the Weishaupt Heat Pump integration."""
+"""Constants for the Weishaupt2HA integration."""
 
 from datetime import timedelta
 from enum import StrEnum
 
-DOMAIN = "weishaupt_wp"
+DOMAIN = "weishaupt2ha"
 MANUFACTURER = "Weishaupt"
 
 DEFAULT_HOST = ""

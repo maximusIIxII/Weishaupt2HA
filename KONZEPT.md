@@ -71,7 +71,7 @@ Entwicklung einer **Home Assistant Custom Integration** für Weishaupt Wärmepum
 │                    Home Assistant                         │
 │                                                           │
 │  ┌─────────────────────────────────────────────────────┐ │
-│  │         custom_components/weishaupt_wp/              │ │
+│  │         custom_components/weishaupt2ha/             │ │
 │  │                                                       │ │
 │  │  config_flow.py ──► Coordinator ──► Entity-Plattformen│ │
 │  │       │                  │              │              │ │
@@ -136,7 +136,7 @@ Entwicklung einer **Home Assistant Custom Integration** für Weishaupt Wärmepum
 | Paket | Zweck | Repository |
 |-------|-------|------------|
 | **weishaupt-modbus** (PyPI) | Modbus-Kommunikation, Register-Map, Datenmodell | Eigenes Repo |
-| **weishaupt_wp** (HA Integration) | HA-Plattformen, Config Flow, Coordinator, Entities | Dieses Repo |
+| **weishaupt2ha** (HA Integration) | HA-Plattformen, Config Flow, Coordinator, Entities | Dieses Repo |
 
 Diese Trennung ist **Pflicht für HA-Core-Aufnahme** und ermöglicht unabhängige Tests der Modbus-Schicht.
 
@@ -147,9 +147,9 @@ Diese Trennung ist **Pflicht für HA-Core-Aufnahme** und ermöglicht unabhängig
 ### 3.1 Projektstruktur
 
 ```
-weishaupt_wp/                          # HA Custom Integration
+weishaupt2ha/                          # HA Custom Integration
 ├── custom_components/
-│   └── weishaupt_wp/
+│   └── weishaupt2ha/
 │       ├── __init__.py                # Setup, Coordinator-Init, Platform-Forwarding
 │       ├── config_flow.py             # UI-Konfiguration (Host, Port, Device-Adresse)
 │       ├── const.py                   # DOMAIN, Default-Werte, Register-Adressen
@@ -203,12 +203,12 @@ weishaupt-modbus/                      # Separate Python Library (PyPI)
 
 ```json
 {
-  "domain": "weishaupt_wp",
-  "name": "Weishaupt Heat Pump",
-  "codeowners": ["@timvanwasen"],
+  "domain": "weishaupt2ha",
+  "name": "Weishaupt2HA",
+  "codeowners": ["@maximusIIxII"],
   "config_flow": true,
   "dependencies": [],
-  "documentation": "https://github.com/timvanwasen/weishaupt_wp",
+  "documentation": "https://github.com/maximusIIxII/Weishaupt2HA",
   "iot_class": "local_polling",
   "requirements": ["weishaupt-modbus==0.1.0"],
   "version": "0.1.0",

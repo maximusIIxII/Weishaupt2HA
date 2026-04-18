@@ -2,7 +2,7 @@
 
 Anleitung fuer das Veroeffentlichen einer neuen Version der Library auf PyPI.
 HA-User beziehen die Library dann automatisch ueber die `requirements`-Zeile in
-`custom_components/weishaupt_wp/manifest.json`.
+`custom_components/weishaupt2ha/manifest.json`.
 
 ## Einmalige Vorbereitung
 
@@ -76,7 +76,7 @@ User ist immer `__token__`, Passwort ist der komplette Token-String inkl. Prefix
 Vor dem Upload beide Versionsangaben pruefen:
 
 - `weishaupt_modbus/pyproject.toml` → Feld `version`
-- `custom_components/weishaupt_wp/manifest.json` → Feld `version` UND `requirements`
+- `custom_components/weishaupt2ha/manifest.json` → Feld `version` UND `requirements`
 
 Beide muessen auf die gleiche neue Version zeigen. Die HA-Integration pinnt die
 Library per `weishaupt-modbus==X.Y.Z`, sonst laufen HA und Library auseinander.
